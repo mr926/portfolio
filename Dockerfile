@@ -29,20 +29,23 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Copy Prisma schema + migration files (needed for migrate deploy at runtime)
+# Copy Prisma schema + migrations + config
+# prisma.config.ts is loaded by the Prisma CLI at runtime via jiti (built-in)
 COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
 # Copy generated Prisma client
 COPY --from=builder /app/app/generated/prisma ./app/generated/prisma
 
-# Copy native Node modules needed at runtime
+# Copy Node modules needed at runtime
 COPY --from=builder /app/node_modules/@prisma  ./node_modules/@prisma
 COPY --from=builder /app/node_modules/@libsql  ./node_modules/@libsql
-# Copy Prisma CLI (needed to run migrate deploy in entrypoint)
+# Prisma CLI — runs migrate deploy in entrypoint (includes jiti for .ts config)
 COPY --from=builder /app/node_modules/prisma   ./node_modules/prisma
+# dotenv — imported by prisma.config.ts
+COPY --from=builder /app/node_modules/dotenv   ./node_modules/dotenv
 
-# Pre-create writable directories with open permissions
-# so any uid (e.g. BaoTa's www=1000) can read/write after volume mount
+# Pre-create writable directories (chmod 777 so any uid can write after volume mount)
 RUN mkdir -p /app/data /app/public/uploads && \
     chmod 777 /app/data /app/public/uploads
 
