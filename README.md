@@ -4,10 +4,10 @@ An architecture & interior design portfolio built with Next.js, Prisma (SQLite),
 
 ## Docker 部署
 
-镜像由 GitHub Actions 自动构建并推送至 GHCR，每次推送到 `main` 分支时触发。
+镜像由 GitHub Actions 自动构建并推送至 Docker Hub，每次推送到 `main` 分支时触发。
 
 ```
-ghcr.io/mr926/portfolio:latest
+mr926/portfolio:latest
 ```
 
 ### 快速启动
@@ -16,9 +16,11 @@ ghcr.io/mr926/portfolio:latest
 # docker-compose.yml
 services:
   portfolio:
-    image: ghcr.io/mr926/portfolio:latest
+    image: mr926/portfolio:latest
     ports:
       - "3000:3000"
+    user: "1000:1000"   # 与宿主机 www 用户保持一致，避免 volume 权限问题
+                        # 可用 `id www` 查看实际 uid:gid，按需修改
     volumes:
       - ./data:/app/data                   # SQLite 数据库持久化
       - ./uploads:/app/public/uploads      # 本地上传图片持久化

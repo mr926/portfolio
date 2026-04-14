@@ -41,6 +41,11 @@ COPY --from=builder /app/node_modules/@libsql  ./node_modules/@libsql
 # Copy Prisma CLI (needed to run migrate deploy in entrypoint)
 COPY --from=builder /app/node_modules/prisma   ./node_modules/prisma
 
+# Pre-create writable directories with open permissions
+# so any uid (e.g. BaoTa's www=1000) can read/write after volume mount
+RUN mkdir -p /app/data /app/public/uploads && \
+    chmod 777 /app/data /app/public/uploads
+
 # Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
