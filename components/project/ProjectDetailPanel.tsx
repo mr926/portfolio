@@ -58,6 +58,8 @@ export default function ProjectDetailPanel({
   const [panoramaUrl, setPanoramaUrl] = useState<string | null>(null);
   const [isClosing, setIsClosing] = useState(false);
   const [dims, setDims] = useState<DimMap>({});
+  // 首次定位完成前禁用 transition，避免从左边滑入的闪烁
+  const [canTransition, setCanTransition] = useState(false);
 
   const panelRef = useRef<HTMLDivElement>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -73,8 +75,27 @@ export default function ProjectDetailPanel({
       .then((r) => r.json())
       .then((data) => {
         if (data.success) {
-          setProject(data.data);
+          const proj = data.data;
+          setProject(proj);
           setCurrentCard(0);
+
+          // 预加载第一张图尺寸，确保定位正确后再开启 transition
+          const firstCard = proj.cards?.[0];
+          const src = firstCard?.type === "image" ? firstCard.imageUrl : null;
+          const enableTransition = () =>
+            requestAnimationFrame(() => requestAnimationFrame(() => setCanTransition(true)));
+
+          if (src) {
+            const img = new Image();
+            img.onload = () => {
+              setDims((prev) => ({ ...prev, [src]: { w: img.naturalWidth, h: img.naturalHeight } }));
+              enableTransition();
+            };
+            img.onerror = enableTransition;
+            img.src = src;
+          } else {
+            enableTransition();
+          }
         }
         setLoading(false);
       })
@@ -230,7 +251,7 @@ export default function ProjectDetailPanel({
                 style={{
                   gap: CARD_GAP,
                   transform: `translateX(${-translateX}px)`,
-                  transition: "transform 0.55s cubic-bezier(0.65, 0, 0.35, 1)",
+                  transition: canTransition ? "transform 0.55s cubic-bezier(0.65, 0, 0.35, 1)" : "none",
                   willChange: "transform",
                 }}
               >
