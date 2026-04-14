@@ -24,17 +24,10 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# su-exec: lightweight tool to switch user in entrypoint scripts
-RUN apk add --no-cache su-exec
-
-# Create non-root user
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nextjs
-
 # Copy standalone output
 COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
 # Copy Prisma schema + migration files (needed for migrate deploy at runtime)
 COPY --from=builder /app/prisma ./prisma
@@ -52,14 +45,10 @@ COPY --from=builder /app/node_modules/prisma   ./node_modules/prisma
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-# Pre-create directories (ownership fixed at runtime by entrypoint)
-RUN mkdir -p /app/data /app/public/uploads
-
 EXPOSE 3000
 
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 ENV DATABASE_URL="file:/app/data/portfolio.db"
 
-# Entrypoint runs as root, fixes permissions, migrates DB, then execs as nextjs
 ENTRYPOINT ["/entrypoint.sh"]
