@@ -9,4 +9,8 @@ echo "Running database migrations..."
 node /app/node_modules/prisma/build/index.js migrate deploy
 echo "Migrations complete."
 
+# Seed default admin user if none exists
+echo "Checking admin user..."
+node /app/scripts/seed-admin.cjs
+
 exec node /app/server.js

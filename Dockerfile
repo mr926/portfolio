@@ -43,7 +43,8 @@ COPY --from=builder /app/node_modules ./node_modules
 RUN mkdir -p /app/data /app/public/uploads && \
     chmod 777 /app/data /app/public/uploads
 
-# Copy entrypoint script
+# Copy entrypoint and seed scripts
+COPY scripts/seed-admin.cjs /app/scripts/seed-admin.cjs
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
