@@ -2,7 +2,7 @@
 FROM node:20-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm ci --ignore-scripts
+RUN npm ci
 
 # ── Stage 2: builder ───────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
@@ -10,7 +10,7 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Generate Prisma client
+# Generate Prisma client (outputs to app/generated/prisma per schema.prisma)
 RUN npx prisma generate
 
 # Build Next.js
@@ -33,10 +33,13 @@ COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy Prisma files needed at runtime
-COPY --from=builder /app/app/generated/prisma ./app/generated/prisma
+# Copy Prisma schema (for migrations at runtime)
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+
+# Copy generated Prisma client
+COPY --from=builder /app/app/generated/prisma ./app/generated/prisma
+
+# Copy native Node modules needed at runtime
 COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 COPY --from=builder /app/node_modules/@libsql ./node_modules/@libsql
 
