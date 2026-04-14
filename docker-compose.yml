@@ -1,0 +1,25 @@
+version: "3.9"
+
+services:
+  portfolio:
+    image: ghcr.io/${GITHUB_REPOSITORY:-mr926/portfolio}:latest
+    container_name: portfolio
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=file:/app/data/portfolio.db
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - NODE_ENV=production
+    volumes:
+      - portfolio_data:/app/data
+      - portfolio_uploads:/app/public/uploads
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/public/settings"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  portfolio_data:
+  portfolio_uploads:

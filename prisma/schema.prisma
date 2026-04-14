@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ────────────────────────────────
+//  Category — 作品分类
+// ────────────────────────────────
+model Category {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  order     Int       @default(0)
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// ────────────────────────────────
+//  Project — 项目
+// ────────────────────────────────
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  subtitle    String        @default("")
+  slug        String        @unique
+  categoryId  String
+  category    Category      @relation(fields: [categoryId], references: [id])
+  coverImage  String        @default("")
+  status      String        @default("draft")
+  isPinned    Boolean       @default(false)
+  order       Int           @default(0)
+  cards       ProjectCard[]
+  metas       ProjectMeta[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+// ────────────────────────────────
+//  ProjectCard — 内容卡片
+// ────────────────────────────────
+model ProjectCard {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  type        String   // image | text | panorama
+  order       Int      @default(0)
+  title       String?  // optional heading shown above card content
+  imageUrl    String?
+  imageAlt    String?  @default("")
+  content     String?
+  panoramaUrl        String?
+  panoramaPreviewUrl String?
+  createdAt          DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// ────────────────────────────────
+//  ProjectMeta — 自定义字段 key-value
+// ────────────────────────────────
+model ProjectMeta {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  key       String
+  value     String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ────────────────────────────────
+//  SiteSettings — 全站设置
+// ────────────────────────────────
+model SiteSettings {
+  id               String   @id @default("singleton")
+  siteName         String   @default("CHAOS LAB")
+  siteTagline      String   @default("")
+  landingEnabled   Boolean  @default(true)
+  landingBgDesktop String   @default("")
+  landingBgMobile  String   @default("")
+  landingStayMs    Int      @default(1000)
+  landingAnimMs    Int      @default(1000)
+  instagram        String   @default("")
+  linkedin         String   @default("")
+  email            String   @default("")
+  location         String   @default("")
+  // Alibaba Cloud OSS
+  ossEnabled          Boolean @default(false)
+  ossRegion           String  @default("")
+  ossBucket           String  @default("")
+  ossAccessKeyId      String  @default("")
+  ossAccessKeySecret  String  @default("")
+  ossPath             String  @default("portfolio/")
+  ossCustomDomain     String  @default("")
+  // Logo & Favicon
+  logoUrl      String  @default("")
+  logoMode     String  @default("name")   // "name" | "logo" | "both"
+  faviconUrl   String  @default("")
+  updatedAt        DateTime @updatedAt
+}
+
+// ────────────────────────────────
+//  Page — CMS 页面（about, news 等）
+// ────────────────────────────────
+model Page {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String   @default("")
+  content   String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ────────────────────────────────
+//  FooterColumn — 页脚栏目
+// ────────────────────────────────
+model FooterColumn {
+  id        String      @id @default(cuid())
+  title     String      @default("")
+  order     Int         @default(0)
+  links     FooterLink[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+// ────────────────────────────────
+//  FooterLink — 页脚链接条目
+// ────────────────────────────────
+model FooterLink {
+  id        String      @id @default(cuid())
+  columnId  String
+  column    FooterColumn @relation(fields: [columnId], references: [id], onDelete: Cascade)
+  label     String      @default("")
+  url       String      @default("")
+  order     Int         @default(0)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+model AdminUser {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

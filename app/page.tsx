@@ -1,65 +1,273 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useEffect, useState, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
+import SiteNav from "@/components/layout/SiteNav";
+import SiteFooter from "@/components/layout/SiteFooter";
+import LandingOverlay from "@/components/layout/LandingOverlay";
+import ProjectDetailPanel from "@/components/project/ProjectDetailPanel";
+
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  order: number;
+}
+
+interface Project {
+  id: string;
+  name: string;
+  subtitle: string;
+  slug: string;
+  categoryId: string;
+  category: Category;
+  coverImage: string;
+  isPinned: boolean;
+  metas: { value: string }[];
+}
+
+interface SiteSettings {
+  siteName: string;
+  siteTagline: string;
+  landingEnabled: boolean;
+  landingBgDesktop: string;
+  landingBgMobile: string;
+  landingStayMs: number;
+  landingAnimMs: number;
+  instagram: string;
+  linkedin: string;
+  email: string;
+  logoUrl: string;
+  logoMode: string;
+  faviconUrl: string;
+}
+
+interface FooterLink { id: string; label: string; url: string; }
+interface FooterColumn { id: string; title: string; links: FooterLink[]; }
+
+const PAGE_SIZE = 12;
+
+function HomeContent() {
+  const searchParams = useSearchParams();
+
+  const [settings, setSettings] = useState<SiteSettings | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [footerColumns, setFooterColumns] = useState<FooterColumn[]>([]);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+  const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [page, setPage] = useState(1);
+  const [showLanding, setShowLanding] = useState(false);
+  const [landingDone, setLandingDone] = useState(false);
+  const [openProjectSlug, setOpenProjectSlug] = useState<string | null>(null);
+
+  // Check URL for project slug
+  useEffect(() => {
+    const slug = searchParams.get("project");
+    if (slug) {
+      setOpenProjectSlug(slug);
+      setLandingDone(true);
+    }
+  }, [searchParams]);
+
+  // Fetch settings
+  useEffect(() => {
+    fetch("/api/public/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) {
+          setSettings(data.data);
+          if (data.data.landingEnabled && !searchParams.get("project")) {
+            setShowLanding(true);
+          } else {
+            setLandingDone(true);
+          }
+        }
+      });
+  }, []);
+
+  // Fetch footer columns
+  useEffect(() => {
+    fetch("/api/public/footer")
+      .then((r) => r.json())
+      .then((d) => { if (d.success) setFooterColumns(d.data); });
+  }, []);
+
+  // Fetch categories
+  useEffect(() => {
+    fetch("/api/public/categories")
+      .then((r) => r.json())
+      .then((data) => { if (data.success) setCategories(data.data); });
+  }, []);
+
+  // Fetch projects
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (activeCategory !== "all") params.set("category", activeCategory);
+    params.set("limit", String(PAGE_SIZE));
+    params.set("page", String(page));
+
+    fetch(`/api/public/projects?${params}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) {
+          setProjects(data.data.items);
+          setTotal(data.data.total);
+          setTotalPages(data.data.totalPages);
+        }
+      });
+  }, [activeCategory, page]);
+
+  const handleCategoryChange = useCallback((slug: string) => {
+    setActiveCategory(slug);
+    setPage(1);
+  }, []);
+
+  const handleLandingComplete = useCallback(() => {
+    setShowLanding(false);
+    setLandingDone(true);
+  }, []);
+
+  const handleOpenProject = useCallback((slug: string) => {
+    setOpenProjectSlug(slug);
+    const url = new URL(window.location.href);
+    url.searchParams.set("project", slug);
+    window.history.pushState({}, "", url.toString());
+  }, []);
+
+  const handleCloseProject = useCallback(() => {
+    setOpenProjectSlug(null);
+    const url = new URL(window.location.href);
+    url.searchParams.delete("project");
+    window.history.pushState({}, "", url.toString());
+  }, []);
+
+  const siteName = settings?.siteName || "CHAOS LAB";
+  const navItems = [
+    { label: "Works", href: "/" },
+    { label: "About", href: "/about" },
+  ];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <>
+      {showLanding && settings && (
+        <LandingOverlay
+          bgDesktop={settings.landingBgDesktop}
+          bgMobile={settings.landingBgMobile}
+          siteName={siteName}
+          tagline={settings.siteTagline}
+          stayMs={settings.landingStayMs}
+          animMs={settings.landingAnimMs}
+          onComplete={handleLandingComplete}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      )}
+
+      <div
+        className={`min-h-screen flex flex-col transition-opacity duration-500 ${
+          landingDone ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+      >
+        <SiteNav
+          siteName={siteName}
+          navItems={navItems}
+          theme="light"
+          logoUrl={settings?.logoUrl}
+          logoMode={(settings?.logoMode as "name" | "logo" | "both") || "name"}
+          categories={categories}
+          activeCategory={activeCategory}
+          onCategoryChange={handleCategoryChange}
+        />
+
+        <main className="pt-24 pb-20 flex-1">
+          {/* ── Grid ── */}
+          {projects.length === 0 ? (
+            <div className="py-32 text-center">
+              <p className="text-[10px] tracking-widest uppercase text-[#c6c6c6]">
+                No projects yet
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-0.5">
+              {projects.map((project) => {
+                const year = project.metas?.[0]?.value || "";
+                return (
+                  <article
+                    key={project.id}
+                    className="group cursor-pointer overflow-hidden"
+                    onClick={() => handleOpenProject(project.slug)}
+                  >
+                    <div className="aspect-square overflow-hidden">
+                      {project.coverImage ? (
+                        <img
+                          src={project.coverImage}
+                          alt={project.name}
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-[#e8e8e8] flex items-center justify-center">
+                          <span className="text-[#c6c6c6] text-[9px] tracking-widest uppercase">No Image</span>
+                        </div>
+                      )}
+                    </div>
+                    {/* Caption below image */}
+                    <div className="px-2 pt-2 pb-2.5 bg-white">
+                      <p className="text-black text-[13px] font-semibold tracking-tight leading-tight truncate">
+                        {project.name}
+                      </p>
+                      {year && (
+                        <p className="text-[#999] text-[11px] mt-0.5">{year}</p>
+                      )}
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          )}
+
+          {/* ── Pagination ── */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-8 pt-12 pb-4">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="text-[10px] tracking-widest uppercase font-bold text-[#5e5e5e] hover:text-black disabled:opacity-25 transition-colors"
+              >
+                ← Prev
+              </button>
+              <span className="text-[10px] tracking-widest uppercase text-[#c6c6c6]">
+                {page} / {totalPages}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="text-[10px] tracking-widest uppercase font-bold text-[#5e5e5e] hover:text-black disabled:opacity-25 transition-colors"
+              >
+                Next →
+              </button>
+            </div>
+          )}
+        </main>
+
+        <SiteFooter siteName={siteName} columns={footerColumns} />
+      </div>
+
+      {openProjectSlug && (
+        <ProjectDetailPanel
+          slug={openProjectSlug}
+          siteName={siteName}
+          onClose={handleCloseProject}
+        />
+      )}
+    </>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#f9f9f9]" />}>
+      <HomeContent />
+    </Suspense>
   );
 }
