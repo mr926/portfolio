@@ -30,20 +30,14 @@ COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
 # Copy Prisma schema + migrations + config
-# prisma.config.ts is loaded by the Prisma CLI at runtime via jiti (built-in)
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
 # Copy generated Prisma client
 COPY --from=builder /app/app/generated/prisma ./app/generated/prisma
 
-# Copy Node modules needed at runtime
-COPY --from=builder /app/node_modules/@prisma  ./node_modules/@prisma
-COPY --from=builder /app/node_modules/@libsql  ./node_modules/@libsql
-# Prisma CLI — runs migrate deploy in entrypoint (includes jiti for .ts config)
-COPY --from=builder /app/node_modules/prisma   ./node_modules/prisma
-# dotenv — imported by prisma.config.ts
-COPY --from=builder /app/node_modules/dotenv   ./node_modules/dotenv
+# Copy full node_modules so prisma CLI has all its dependencies
+COPY --from=builder /app/node_modules ./node_modules
 
 # Pre-create writable directories (chmod 777 so any uid can write after volume mount)
 RUN mkdir -p /app/data /app/public/uploads && \
