@@ -3,6 +3,8 @@ import SiteNav from "@/components/layout/SiteNav";
 import SiteFooter from "@/components/layout/SiteFooter";
 import type { Metadata } from "next";
 
+export const dynamic = "force-dynamic";
+
 async function getAboutData() {
   const [page, settings, footerColumns] = await Promise.all([
     prisma.page.findUnique({ where: { slug: "about" } }),
