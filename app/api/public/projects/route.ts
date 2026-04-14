@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { withCdn } from "@/lib/cdn";
 
-// Public: GET published projects (with optional category filter)
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const categorySlug = searchParams.get("category");
@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
       : {}),
   };
 
-  const [projects, total] = await Promise.all([
+  const [projects, total, settings] = await Promise.all([
     prisma.project.findMany({
       where,
       include: {
@@ -27,12 +27,22 @@ export async function GET(req: NextRequest) {
       skip: (page - 1) * limit,
     }),
     prisma.project.count({ where }),
+    prisma.siteSettings.findUnique({
+      where: { id: "singleton" },
+      select: { cdnUrl: true },
+    }),
   ]);
+
+  const cdnBase = settings?.cdnUrl || "";
+  const items = projects.map((p) => ({
+    ...p,
+    coverImage: withCdn(p.coverImage, cdnBase),
+  }));
 
   return NextResponse.json({
     success: true,
     data: {
-      items: projects,
+      items,
       total,
       page,
       pageSize: limit,

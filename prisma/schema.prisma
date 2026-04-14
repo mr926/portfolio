@@ -89,17 +89,11 @@ model SiteSettings {
   linkedin         String   @default("")
   email            String   @default("")
   location         String   @default("")
-  // Alibaba Cloud OSS
-  ossEnabled          Boolean @default(false)
-  ossRegion           String  @default("")
-  ossBucket           String  @default("")
-  ossAccessKeyId      String  @default("")
-  ossAccessKeySecret  String  @default("")
-  ossPath             String  @default("portfolio/")
-  ossCustomDomain     String  @default("")
+  // CDN
+  cdnUrl       String  @default("")
   // Logo & Favicon
   logoUrl      String  @default("")
-  logoMode     String  @default("name")   // "name" | "logo" | "both"
+  logoMode     String  @default("name")
   faviconUrl   String  @default("")
   updatedAt        DateTime @updatedAt
 }

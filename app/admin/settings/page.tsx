@@ -16,18 +16,12 @@ interface SiteSettings {
   linkedin: string;
   email: string;
   location: string;
+  // CDN
+  cdnUrl: string;
   // Logo & Favicon
   logoUrl: string;
   logoMode: string;
   faviconUrl: string;
-  // OSS
-  ossEnabled: boolean;
-  ossRegion: string;
-  ossBucket: string;
-  ossAccessKeyId: string;
-  ossAccessKeySecret: string;
-  ossPath: string;
-  ossCustomDomain: string;
 }
 
 const INPUT_CLS =
@@ -42,8 +36,6 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
-  const [ossTestStatus, setOssTestStatus] = useState<"idle" | "testing" | "ok" | "fail">("idle");
-  const [ossTestMsg, setOssTestMsg] = useState("");
 
   useEffect(() => {
     fetch("/api/admin/settings")
@@ -79,27 +71,6 @@ export default function AdminSettingsPage() {
       setError("Network error");
     } finally {
       setSaving(false);
-    }
-  }
-
-  async function handleOssTest() {
-    if (!settings) return;
-    setOssTestStatus("testing");
-    setOssTestMsg("");
-    // Save first, then test
-    await fetch("/api/admin/settings", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(settings),
-    });
-    const res = await fetch("/api/admin/oss-test", { method: "POST" });
-    const data = await res.json();
-    if (data.success) {
-      setOssTestStatus("ok");
-      setOssTestMsg(`连接成功，Bucket: ${data.bucket}`);
-    } else {
-      setOssTestStatus("fail");
-      setOssTestMsg(data.error || "连接失败");
     }
   }
 
@@ -149,11 +120,29 @@ export default function AdminSettingsPage() {
           </div>
         </fieldset>
 
+        {/* ── CDN ── */}
+        <fieldset className="space-y-6">
+          <legend className={LEGEND_CLS}>CDN 加速</legend>
+          <div>
+            <label className={LABEL_CLS}>CDN 域名</label>
+            <input
+              type="url"
+              value={settings.cdnUrl}
+              onChange={(e) => update("cdnUrl", e.target.value)}
+              className={INPUT_CLS}
+              placeholder="https://cdn.example.com"
+            />
+            <p className="text-[9px] text-[#c6c6c6] mt-2 leading-relaxed">
+              填写后，所有图片链接自动替换为 CDN 地址（例如 /uploads/xxx.jpg → https://cdn.example.com/uploads/xxx.jpg）。<br />
+              回源地址请配置为本服务器的域名或 IP。留空则使用本地路径。
+            </p>
+          </div>
+        </fieldset>
+
         {/* ── Logo & Favicon ── */}
         <fieldset className="space-y-6">
           <legend className={LEGEND_CLS}>Logo &amp; Favicon</legend>
 
-          {/* Logo display mode */}
           <div>
             <label className={LABEL_CLS}>导航栏显示模式</label>
             <div className="flex flex-col gap-3 mt-1">
@@ -179,7 +168,6 @@ export default function AdminSettingsPage() {
             </div>
           </div>
 
-          {/* Logo image upload (shown when mode is logo or both) */}
           {(settings.logoMode === "logo" || settings.logoMode === "both") && (
             <div>
               <ImageUpload
@@ -196,7 +184,6 @@ export default function AdminSettingsPage() {
             </div>
           )}
 
-          {/* Favicon */}
           <div>
             <ImageUpload
               label="Favicon（建议 32×32 或 64×64 PNG / ICO）"
@@ -247,125 +234,6 @@ export default function AdminSettingsPage() {
           </div>
           <ImageUpload label="Desktop Background Image" value={settings.landingBgDesktop} onChange={(url) => update("landingBgDesktop", url)} type="bg" />
           <ImageUpload label="Mobile Background Image (optional)" value={settings.landingBgMobile} onChange={(url) => update("landingBgMobile", url)} type="bg" />
-        </fieldset>
-
-        {/* ── OSS ── */}
-        <fieldset className="space-y-6">
-          <legend className={LEGEND_CLS}>阿里云 OSS 对象存储</legend>
-
-          {/* Toggle */}
-          <div className="flex items-center gap-3">
-            <input
-              type="checkbox"
-              id="ossEnabled"
-              checked={settings.ossEnabled}
-              onChange={(e) => update("ossEnabled", e.target.checked)}
-              className="w-4 h-4"
-            />
-            <label htmlFor="ossEnabled" className="text-[10px] uppercase tracking-widest text-[#5e5e5e]">
-              启用 OSS 存储（上传文件直接写入 Bucket，前台读取 OSS 链接）
-            </label>
-          </div>
-
-          {/* Config fields — only shown when enabled */}
-          {settings.ossEnabled && (
-            <div className="space-y-5 pl-7 border-l-2 border-[#e8e8e8]">
-              <div className="grid grid-cols-2 gap-5">
-                <div>
-                  <label className={LABEL_CLS}>Region</label>
-                  <input
-                    type="text"
-                    value={settings.ossRegion}
-                    onChange={(e) => update("ossRegion", e.target.value)}
-                    className={INPUT_CLS}
-                    placeholder="oss-cn-hangzhou"
-                  />
-                </div>
-                <div>
-                  <label className={LABEL_CLS}>Bucket 名称</label>
-                  <input
-                    type="text"
-                    value={settings.ossBucket}
-                    onChange={(e) => update("ossBucket", e.target.value)}
-                    className={INPUT_CLS}
-                    placeholder="my-portfolio"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className={LABEL_CLS}>Access Key ID</label>
-                <input
-                  type="text"
-                  value={settings.ossAccessKeyId}
-                  onChange={(e) => update("ossAccessKeyId", e.target.value)}
-                  className={INPUT_CLS}
-                  placeholder="LTAI5t..."
-                  autoComplete="off"
-                />
-              </div>
-
-              <div>
-                <label className={LABEL_CLS}>Access Key Secret</label>
-                <input
-                  type="password"
-                  value={settings.ossAccessKeySecret}
-                  onChange={(e) => update("ossAccessKeySecret", e.target.value)}
-                  className={INPUT_CLS}
-                  placeholder="••••••••••••••••"
-                  autoComplete="new-password"
-                />
-              </div>
-
-              <div>
-                <label className={LABEL_CLS}>
-                  存储路径前缀 <span className="normal-case tracking-normal text-[#c6c6c6]">（默认 portfolio/）</span>
-                </label>
-                <input
-                  type="text"
-                  value={settings.ossPath}
-                  onChange={(e) => update("ossPath", e.target.value)}
-                  className={INPUT_CLS}
-                  placeholder="portfolio/"
-                />
-              </div>
-
-              <div>
-                <label className={LABEL_CLS}>
-                  自定义域名 <span className="normal-case tracking-normal text-[#c6c6c6]">（可选，绑定 CDN 域名时填写）</span>
-                </label>
-                <input
-                  type="text"
-                  value={settings.ossCustomDomain}
-                  onChange={(e) => update("ossCustomDomain", e.target.value)}
-                  className={INPUT_CLS}
-                  placeholder="https://cdn.example.com"
-                />
-                <p className="text-[9px] text-[#c6c6c6] mt-1">
-                  留空则使用标准格式：https://&#123;bucket&#125;.&#123;region&#125;.aliyuncs.com/&#123;key&#125;
-                </p>
-              </div>
-
-              {/* Connection test */}
-              <div className="flex items-center gap-4 pt-2">
-                <button
-                  type="button"
-                  onClick={handleOssTest}
-                  disabled={ossTestStatus === "testing"}
-                  className="flex items-center gap-2 border border-[#c6c6c6] px-5 py-2.5 text-[10px] font-bold tracking-widest uppercase hover:border-black transition-colors disabled:opacity-50"
-                >
-                  <span className="material-symbols-outlined text-sm">cloud_done</span>
-                  {ossTestStatus === "testing" ? "连接中…" : "测试连接"}
-                </button>
-                {ossTestStatus === "ok" && (
-                  <span className="text-[10px] text-green-600 tracking-wide">✓ {ossTestMsg}</span>
-                )}
-                {ossTestStatus === "fail" && (
-                  <span className="text-[10px] text-[#ba1a1a] tracking-wide">✗ {ossTestMsg}</span>
-                )}
-              </div>
-            </div>
-          )}
         </fieldset>
 
         {error && <p className="text-[#ba1a1a] text-[10px] tracking-widest uppercase">{error}</p>}

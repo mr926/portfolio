@@ -2,13 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  serverExternalPackages: ["ali-oss"],
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "*.aliyuncs.com",
-      },
       {
         protocol: "http",
         hostname: "localhost",

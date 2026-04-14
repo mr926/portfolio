@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 
-// GET settings
 export async function GET(req: NextRequest) {
   const auth = requireAuth(req);
   if ("error" in auth) {
@@ -10,17 +9,13 @@ export async function GET(req: NextRequest) {
   }
 
   let settings = await prisma.siteSettings.findUnique({ where: { id: "singleton" } });
-
   if (!settings) {
-    settings = await prisma.siteSettings.create({
-      data: { id: "singleton" },
-    });
+    settings = await prisma.siteSettings.create({ data: { id: "singleton" } });
   }
 
   return NextResponse.json({ success: true, data: settings });
 }
 
-// PUT update settings
 export async function PUT(req: NextRequest) {
   const auth = requireAuth(req);
   if ("error" in auth) {
@@ -33,12 +28,10 @@ export async function PUT(req: NextRequest) {
     "landingBgDesktop", "landingBgMobile",
     "landingStayMs", "landingAnimMs",
     "instagram", "linkedin", "email", "location",
+    // CDN
+    "cdnUrl",
     // Logo & Favicon
     "logoUrl", "logoMode", "faviconUrl",
-    // OSS
-    "ossEnabled", "ossRegion", "ossBucket",
-    "ossAccessKeyId", "ossAccessKeySecret",
-    "ossPath", "ossCustomDomain",
   ];
 
   const updateData: Record<string, unknown> = {};

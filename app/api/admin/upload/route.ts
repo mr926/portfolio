@@ -3,7 +3,8 @@ import { requireAuth } from "@/lib/auth";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import sharp from "sharp";
-import { getOssConfig, createOssClient, uploadToOss } from "@/lib/oss";
+import { prisma } from "@/lib/prisma";
+import { withCdn } from "@/lib/cdn";
 
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
@@ -16,18 +17,11 @@ async function ensureUploadDirs() {
   await mkdir(path.join(UPLOAD_DIR, "panorama-preview"), { recursive: true });
 }
 
-// ─── Local helpers ───────────────────────────────────────────────────────────
-
-async function saveLocal(
-  buffer: Buffer,
-  relPath: string // e.g. "lg/1234_abc.webp"
-): Promise<string> {
+async function saveLocal(buffer: Buffer, relPath: string): Promise<string> {
   const fullPath = path.join(UPLOAD_DIR, relPath);
   await writeFile(fullPath, buffer);
   return `/uploads/${relPath}`;
 }
-
-// ─── Panorama preview ────────────────────────────────────────────────────────
 
 async function buildPanoramaPreviewBuffer(buffer: Buffer): Promise<Buffer> {
   const meta = await sharp(buffer).metadata();
@@ -46,8 +40,6 @@ async function buildPanoramaPreviewBuffer(buffer: Buffer): Promise<Buffer> {
     .webp({ quality: 80 })
     .toBuffer();
 }
-
-// ─── Main handler ─────────────────────────────────────────────────────────────
 
 export async function POST(req: NextRequest) {
   const auth = requireAuth(req);
@@ -81,32 +73,24 @@ export async function POST(req: NextRequest) {
     const random = Math.random().toString(36).slice(2, 8);
     const baseName = `${timestamp}_${random}`;
 
-    // Check OSS config once
-    const ossConfig = await getOssConfig();
-    const useOss = !!ossConfig;
-    const ossClient = useOss ? createOssClient(ossConfig!) : null;
-    const ossBase = ossConfig?.path ?? "portfolio/";
+    // Fetch CDN URL from settings
+    const settings = await prisma.siteSettings.findUnique({
+      where: { id: "singleton" },
+      select: { cdnUrl: true },
+    });
+    const cdnBase = settings?.cdnUrl || "";
 
-    // Helper — stores one buffer and returns its public URL
-    async function store(
-      buf: Buffer,
-      relPath: string, // local-style path like "lg/1234_abc.webp"
-      mime: string
-    ): Promise<string> {
-      if (useOss && ossClient) {
-        const key = `${ossBase}${relPath}`;
-        return uploadToOss(ossClient, ossConfig!, key, buf, mime);
-      }
-      await ensureUploadDirs();
-      return saveLocal(buf, relPath);
+    await ensureUploadDirs();
+
+    async function store(buf: Buffer, relPath: string): Promise<string> {
+      const localPath = await saveLocal(buf, relPath);
+      return withCdn(localPath, cdnBase);
     }
 
     const urls: Record<string, string> = {};
 
     // ── Original ──
-    const origBuffer = buffer;
-    const origMime = file.type;
-    urls.original = await store(origBuffer, `original/${baseName}.${ext}`, origMime);
+    urls.original = await store(buffer, `original/${baseName}.${ext}`);
 
     if (type === "panorama") {
       urls.lg = urls.original;
@@ -115,13 +99,12 @@ export async function POST(req: NextRequest) {
 
       try {
         const previewBuf = await buildPanoramaPreviewBuffer(buffer);
-        urls.preview = await store(previewBuf, `panorama-preview/${baseName}.webp`, "image/webp");
+        urls.preview = await store(previewBuf, `panorama-preview/${baseName}.webp`);
       } catch (e) {
         console.warn("Panorama preview generation failed:", e);
         urls.preview = "";
       }
     } else if (file.type !== "image/gif") {
-      // WebP variants
       const variants: Array<{ size: string; width: number }> = [
         { size: "lg", width: 1920 },
         { size: "md", width: 1200 },
@@ -132,10 +115,9 @@ export async function POST(req: NextRequest) {
           .resize(width, undefined, { withoutEnlargement: true, fit: "inside" })
           .webp({ quality: 85 })
           .toBuffer();
-        urls[size] = await store(varBuf, `${size}/${baseName}.webp`, "image/webp");
+        urls[size] = await store(varBuf, `${size}/${baseName}.webp`);
       }
     } else {
-      // GIF — no transcoding
       urls.lg = urls.original;
       urls.md = urls.original;
       urls.thumb = urls.original;
@@ -151,7 +133,7 @@ export async function POST(req: NextRequest) {
         size: file.size,
         type: file.type,
         previewUrl: urls.preview || null,
-        storage: useOss ? "oss" : "local",
+        storage: "local",
       },
     });
   } catch (error) {
