@@ -3,8 +3,6 @@ import { requireAuth } from "@/lib/auth";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import sharp from "sharp";
-import { prisma } from "@/lib/prisma";
-import { withCdn } from "@/lib/cdn";
 
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
@@ -73,18 +71,11 @@ export async function POST(req: NextRequest) {
     const random = Math.random().toString(36).slice(2, 8);
     const baseName = `${timestamp}_${random}`;
 
-    // Fetch CDN URL from settings
-    const settings = await prisma.siteSettings.findUnique({
-      where: { id: "singleton" },
-      select: { cdnUrl: true },
-    });
-    const cdnBase = settings?.cdnUrl || "";
-
     await ensureUploadDirs();
 
+    // 始终存储相对路径，CDN 前缀只在公开 API 输出时套用
     async function store(buf: Buffer, relPath: string): Promise<string> {
-      const localPath = await saveLocal(buf, relPath);
-      return withCdn(localPath, cdnBase);
+      return saveLocal(buf, relPath);
     }
 
     const urls: Record<string, string> = {};
