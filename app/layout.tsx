@@ -13,20 +13,27 @@ const inter = Inter({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const settings = await prisma.siteSettings.findUnique({
-    where: { id: "singleton" },
-    select: { siteName: true, siteTagline: true, faviconUrl: true },
-  });
-  const siteName = settings?.siteName || "CHAOS LAB";
-  const tagline = settings?.siteTagline || "Architecture & Interior Design";
-  const icons: Metadata["icons"] = settings?.faviconUrl
-    ? { icon: settings.faviconUrl, shortcut: settings.faviconUrl }
-    : undefined;
-  return {
-    title: { default: siteName, template: `%s | ${siteName}` },
-    description: tagline,
-    ...(icons ? { icons } : {}),
-  };
+  try {
+    const settings = await prisma.siteSettings.findUnique({
+      where: { id: "singleton" },
+      select: { siteName: true, siteTagline: true, faviconUrl: true },
+    });
+    const siteName = settings?.siteName || "CHAOS LAB";
+    const tagline = settings?.siteTagline || "Architecture & Interior Design";
+    const icons: Metadata["icons"] = settings?.faviconUrl
+      ? { icon: settings.faviconUrl, shortcut: settings.faviconUrl }
+      : undefined;
+    return {
+      title: { default: siteName, template: `%s | ${siteName}` },
+      description: tagline,
+      ...(icons ? { icons } : {}),
+    };
+  } catch {
+    return {
+      title: { default: "CHAOS LAB", template: "%s | CHAOS LAB" },
+      description: "Architecture & Interior Design",
+    };
+  }
 }
 
 export default function RootLayout({

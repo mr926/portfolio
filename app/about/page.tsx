@@ -6,15 +6,19 @@ import type { Metadata } from "next";
 export const dynamic = "force-dynamic";
 
 async function getAboutData() {
-  const [page, settings, footerColumns] = await Promise.all([
-    prisma.page.findUnique({ where: { slug: "about" } }),
-    prisma.siteSettings.findUnique({ where: { id: "singleton" } }),
-    prisma.footerColumn.findMany({
-      include: { links: { orderBy: { order: "asc" } } },
-      orderBy: { order: "asc" },
-    }),
-  ]);
-  return { page, settings, footerColumns };
+  try {
+    const [page, settings, footerColumns] = await Promise.all([
+      prisma.page.findUnique({ where: { slug: "about" } }),
+      prisma.siteSettings.findUnique({ where: { id: "singleton" } }),
+      prisma.footerColumn.findMany({
+        include: { links: { orderBy: { order: "asc" } } },
+        orderBy: { order: "asc" },
+      }),
+    ]);
+    return { page, settings, footerColumns };
+  } catch {
+    return { page: null, settings: null, footerColumns: [] };
+  }
 }
 
 export async function generateMetadata(): Promise<Metadata> {
