@@ -149,10 +149,10 @@ const mdComponents = {
 
   h3: ({ children }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h3 style={{
-      fontFamily: SANS,
-      fontSize: "16px",
+      fontFamily: SERIF,
+      fontSize: "17px",
       fontWeight: 700,
-      lineHeight: 1.45,
+      lineHeight: 1.4,
       color: "#111",
       marginTop: "1.6em",
       marginBottom: "0.35em",
@@ -357,58 +357,89 @@ export default function DynamicPage() {
               · Container: max 900px, padding 60px sides
               · Whole row: alignItems stretch so image fills height
           ══════════════════════════════════════════════════════════ */}
-          {/* ── Full-width banner ── outside the content container ── */}
-          {hasCover && (
-            <div style={{ width: "100%", overflow: "hidden" }}>
-              {/* Responsive aspect ratio: 3/4 mobile → 16/9 tablet → 21/9 desktop */}
-              <img
-                src={pageData.coverImage}
-                alt=""
-                className="
-                  w-full object-cover object-center block
-                  aspect-[3/4]
-                  sm:aspect-[16/9]
-                  xl:aspect-[21/9]
-                "
-                style={{ display: "block" }}
-              />
+          {/* ── HERO ─────────────────────────────────────────────────── */}
+          {hasCover ? (
+            /* With cover: image fills width, title/subtitle overlaid centered */
+            <>
+              <div className="relative w-full overflow-hidden aspect-[3/4] sm:aspect-[16/9] xl:aspect-[21/8]">
+                {/* Photo */}
+                <img
+                  src={pageData.coverImage}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover object-center"
+                />
+                {/* Gradient: soft dark vignette so white text is readable */}
+                <div className="absolute inset-0" style={{
+                  background: "linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.35) 55%, rgba(0,0,0,0.62) 100%)",
+                }} />
+                {/* Centered text overlay */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-center"
+                  style={{ padding: "0 8%" }}>
+                  {pageData.title && (
+                    <h1 style={{
+                      fontFamily: SERIF,
+                      fontSize: "clamp(26px, 4.5vw, 60px)",
+                      fontWeight: 700,
+                      lineHeight: 1.18,
+                      letterSpacing: "-0.02em",
+                      color: "#fff",
+                      margin: "0 0 0.45em 0",
+                      textShadow: "0 2px 16px rgba(0,0,0,0.25)",
+                    }}>
+                      {pageData.title}
+                    </h1>
+                  )}
+                  {pageData.subtitle && (
+                    <p style={{
+                      fontFamily: SERIF,
+                      fontStyle: "italic",
+                      fontSize: "clamp(14px, 1.6vw, 22px)",
+                      lineHeight: 1.55,
+                      color: "rgba(255,255,255,0.82)",
+                      margin: 0,
+                      maxWidth: "640px",
+                      textShadow: "0 1px 8px rgba(0,0,0,0.3)",
+                    }}>
+                      {pageData.subtitle}
+                    </p>
+                  )}
+                </div>
+              </div>
+              {/* Thin divider below hero */}
+              <div style={{ borderBottom: "1px solid #e8e8e8" }} />
+            </>
+          ) : (
+            /* No cover: plain title block */
+            <div style={{ maxWidth: "860px", margin: "0 auto", padding: "0 48px" }}>
+              <div style={{ paddingTop: "48px", paddingBottom: "40px", borderBottom: "1px solid #e8e8e8" }}>
+                {pageData.title && (
+                  <h1 style={{
+                    fontFamily: SERIF,
+                    fontSize: "clamp(26px, 3.5vw, 42px)",
+                    fontWeight: 700,
+                    lineHeight: 1.2,
+                    letterSpacing: "-0.01em",
+                    color: "#111",
+                    margin: "0 0 12px 0",
+                  }}>
+                    {pageData.title}
+                  </h1>
+                )}
+                {pageData.subtitle && (
+                  <p style={{
+                    fontFamily: SERIF,
+                    fontStyle: "italic",
+                    fontSize: "17px",
+                    lineHeight: 1.65,
+                    color: "#666",
+                    margin: 0,
+                  }}>
+                    {pageData.subtitle}
+                  </p>
+                )}
+              </div>
             </div>
           )}
-
-          {/* ── Title + subtitle ── inside the content container ── */}
-          <div style={{ maxWidth: "860px", margin: "0 auto", padding: "0 48px" }}>
-            <div style={{
-              paddingTop: hasCover ? "32px" : "48px",
-              paddingBottom: "40px",
-              borderBottom: "1px solid #e8e8e8",
-            }}>
-              {pageData.title && (
-                <h1 style={{
-                  fontFamily: SERIF,
-                  fontSize: "34px",
-                  fontWeight: 700,
-                  lineHeight: 1.25,
-                  letterSpacing: "-0.01em",
-                  color: "#111",
-                  margin: "0 0 12px 0",
-                }}>
-                  {pageData.title}
-                </h1>
-              )}
-              {pageData.subtitle && (
-                <p style={{
-                  fontFamily: SANS,
-                  fontSize: "15px",
-                  lineHeight: 1.7,
-                  color: "#666",
-                  margin: 0,
-                  letterSpacing: "0.01em",
-                }}>
-                  {pageData.subtitle}
-                </p>
-              )}
-            </div>
-          </div>
 
           {/* ══════════════════════════════════════════════════════════
               BODY: TOC sidebar (left) + article (right)
