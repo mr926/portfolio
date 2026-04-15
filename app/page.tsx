@@ -165,7 +165,6 @@ function HomeContent() {
   const siteName = settings?.siteName || "CHAOS LAB";
   const navItems = [
     { label: "Works", href: "/" },
-    { label: "About", href: "/about" },
     ...navPages.map((p) => ({ label: p.title, href: `/pages/${p.slug}` })),
   ];
 

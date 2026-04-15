@@ -34,7 +34,6 @@ export default async function AboutPage() {
   const siteName = settings?.siteName || "CHAOS LAB";
   const navItems = [
     { label: "Works", href: "/" },
-    { label: "About", href: "/about" },
   ];
 
   return (
