@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import MarkdownEditor from "@/components/admin/MarkdownEditor";
+import ImageUpload from "@/components/admin/ImageUpload";
 
 interface Page {
   id: string;
   slug: string;
   title: string;
   content: string;
+  coverImage: string;
   showInNav: boolean;
   navOrder: number;
 }
@@ -16,6 +18,7 @@ type FormState = {
   slug: string;
   title: string;
   content: string;
+  coverImage: string;
   showInNav: boolean;
   navOrder: number;
 };
@@ -24,6 +27,7 @@ const EMPTY_FORM: FormState = {
   slug: "",
   title: "",
   content: "",
+  coverImage: "",
   showInNav: false,
   navOrder: 0,
 };
@@ -60,6 +64,7 @@ export default function AdminPagesPage() {
       slug: page.slug,
       title: page.title,
       content: page.content,
+      coverImage: page.coverImage,
       showInNav: page.showInNav,
       navOrder: page.navOrder,
     });
@@ -247,6 +252,35 @@ export default function AdminPagesPage() {
                   className={INPUT_CLS}
                   placeholder="About CHAOS LAB"
                 />
+              </div>
+
+              {/* Cover image */}
+              <div>
+                <ImageUpload
+                  label="封面大图（页面顶部横幅，建议 1600×700 或更宽）"
+                  value={form.coverImage}
+                  onChange={(url) => upd("coverImage", url)}
+                  type="bg"
+                />
+                {form.coverImage && (
+                  <div className="mt-3 relative">
+                    <img
+                      src={form.coverImage}
+                      alt="cover preview"
+                      className="w-full h-28 object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => upd("coverImage", "")}
+                      className="absolute top-2 right-2 bg-black/60 text-white text-[9px] px-2 py-1 hover:bg-black transition-colors"
+                    >
+                      移除
+                    </button>
+                  </div>
+                )}
+                <p className="text-[9px] text-[#c6c6c6] mt-1">
+                  留空则不显示封面图，直接从标题开始
+                </p>
               </div>
 
               {/* Show in nav */}

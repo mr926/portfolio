@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
-  const { slug, title, content, showInNav, navOrder } = await req.json();
+  const { slug, title, content, coverImage, showInNav, navOrder } = await req.json();
 
   if (!slug || !/^[a-z0-9-]+$/.test(slug)) {
     return NextResponse.json(
@@ -39,6 +39,7 @@ export async function POST(req: NextRequest) {
       slug,
       title: title ?? "",
       content: content ?? "",
+      coverImage: coverImage ?? "",
       showInNav: showInNav ?? false,
       navOrder: navOrder ?? 0,
     },

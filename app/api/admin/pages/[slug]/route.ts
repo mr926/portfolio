@@ -27,7 +27,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
   }
 
   const { slug: currentSlug } = await params;
-  const { slug: newSlug, title, content, showInNav, navOrder } = await req.json();
+  const { slug: newSlug, title, content, coverImage, showInNav, navOrder } = await req.json();
 
   // If slug is being changed, check it doesn't conflict
   if (newSlug && newSlug !== currentSlug) {
@@ -47,6 +47,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
   if (newSlug !== undefined) updateData.slug = newSlug;
   if (title !== undefined) updateData.title = title;
   if (content !== undefined) updateData.content = content;
+  if (coverImage !== undefined) updateData.coverImage = coverImage;
   if (showInNav !== undefined) updateData.showInNav = showInNav;
   if (navOrder !== undefined) updateData.navOrder = navOrder;
 
