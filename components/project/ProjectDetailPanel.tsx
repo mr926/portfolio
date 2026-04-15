@@ -66,7 +66,7 @@ export default function ProjectDetailPanel({
   // Cursor DOM refs — bypasses React re-render entirely on mousemove
   const cursorRef = useRef<HTMLDivElement>(null);
   const cursorIconRef = useRef<HTMLSpanElement>(null);
-  const cursorDirRef = useRef<"left" | "right" | null>(null);
+  const cursorActionRef = useRef<"prev" | "next" | "close" | null>(null);
 
   // Fetch project
   useEffect(() => {
@@ -180,36 +180,47 @@ export default function ProjectDetailPanel({
   const handleSliderMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const pct = (e.clientX - rect.left) / rect.width;
-    const dir: "left" | "right" | null = pct < 0.25 ? "left" : pct > 0.75 ? "right" : null;
+
+    let action: "prev" | "next" | "close" | null = null;
+    if (pct < 0.25) action = currentCard === 0 ? "close" : "prev";
+    else if (pct > 0.75) action = currentCard === totalCards - 1 ? "close" : "next";
 
     if (cursorRef.current) {
       cursorRef.current.style.left = `${e.clientX}px`;
       cursorRef.current.style.top = `${e.clientY}px`;
-      cursorRef.current.style.opacity = dir ? "1" : "0";
+      cursorRef.current.style.opacity = action ? "1" : "0";
     }
-    if (dir !== cursorDirRef.current) {
-      cursorDirRef.current = dir;
+    if (action !== cursorActionRef.current) {
+      cursorActionRef.current = action;
       if (cursorIconRef.current) {
-        cursorIconRef.current.textContent = dir === "left" ? "arrow_back" : "arrow_forward";
+        cursorIconRef.current.textContent =
+          action === "close" ? "close" :
+          action === "prev"  ? "arrow_back" :
+          action === "next"  ? "arrow_forward" : "arrow_forward";
       }
     }
     if (sliderRef.current) {
-      sliderRef.current.style.cursor = dir ? "none" : "default";
+      sliderRef.current.style.cursor = action ? "none" : "default";
     }
-  }, []);
+  }, [currentCard, totalCards]);
 
   const handleSliderMouseLeave = useCallback(() => {
     if (cursorRef.current) cursorRef.current.style.opacity = "0";
     if (sliderRef.current) sliderRef.current.style.cursor = "default";
-    cursorDirRef.current = null;
+    cursorActionRef.current = null;
   }, []);
 
   const handleSliderClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const pct = (e.clientX - rect.left) / rect.width;
-    if (pct < 0.25) goPrev();
-    else if (pct > 0.75) goNext();
-  }, [goNext, goPrev]);
+    if (pct < 0.25) {
+      if (currentCard === 0) handleClose();
+      else goPrev();
+    } else if (pct > 0.75) {
+      if (currentCard === totalCards - 1) handleClose();
+      else goNext();
+    }
+  }, [currentCard, totalCards, handleClose, goNext, goPrev]);
 
   const filledMetas = project?.metas.filter((m) => m.value.trim()) ?? [];
 
@@ -229,10 +240,10 @@ export default function ProjectDetailPanel({
           <div className="flex items-center justify-end px-8 py-4 flex-shrink-0">
             <button
               onClick={handleClose}
-              className="flex items-center gap-1.5 text-[9px] tracking-widest uppercase text-white/30 hover:text-white/80 transition-colors"
+              className="flex items-center gap-1.5 text-[11px] tracking-widest uppercase text-white/30 hover:text-white/80 transition-colors"
               aria-label="Close project"
             >
-              <span className="material-symbols-outlined text-sm">close</span>
+              <span className="material-symbols-outlined text-base">close</span>
               <span>Close</span>
             </button>
           </div>

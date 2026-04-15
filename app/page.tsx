@@ -140,7 +140,17 @@ function HomeContent() {
     setOpenProjectSlug(null);
     const url = new URL(window.location.href);
     url.searchParams.delete("project");
-    window.history.pushState({}, "", url.toString());
+    window.history.replaceState({}, "", url.toString());
+  }, []);
+
+  // 浏览器返回键关闭面板
+  useEffect(() => {
+    const handlePop = () => {
+      const slug = new URLSearchParams(window.location.search).get("project");
+      setOpenProjectSlug(slug);
+    };
+    window.addEventListener("popstate", handlePop);
+    return () => window.removeEventListener("popstate", handlePop);
   }, []);
 
   const siteName = settings?.siteName || "CHAOS LAB";

@@ -28,9 +28,9 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen flex bg-[#f9f9f9]">
       {/* Sidebar */}
-      <aside className="w-60 min-h-screen bg-white border-r border-[rgba(198,198,198,0.3)] flex flex-col flex-shrink-0">
+      <aside className="w-60 h-screen sticky top-0 bg-white border-r border-[rgba(198,198,198,0.3)] flex flex-col flex-shrink-0 overflow-hidden">
         {/* Logo */}
-        <div className="px-6 py-8 border-b border-[rgba(198,198,198,0.15)]">
+        <div className="px-6 py-8 border-b border-[rgba(198,198,198,0.15)] flex-shrink-0">
           <Link href="/" className="text-base font-extrabold tracking-tighter uppercase text-black hover:opacity-70 transition-opacity">
             CHAOS LAB
           </Link>
@@ -40,7 +40,7 @@ export default function AdminLayout({
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 px-4 py-6 space-y-1">
+        <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
           {NAV_ITEMS.map((item) => {
             const isActive =
               item.href === "/admin"
@@ -64,8 +64,8 @@ export default function AdminLayout({
           })}
         </nav>
 
-        {/* Bottom: logout + view site */}
-        <div className="px-4 py-6 border-t border-[rgba(198,198,198,0.15)] space-y-2">
+        {/* Bottom: logout + view site — always visible */}
+        <div className="flex-shrink-0 px-4 py-6 border-t border-[rgba(198,198,198,0.15)] space-y-2">
           <Link
             href="/"
             target="_blank"
