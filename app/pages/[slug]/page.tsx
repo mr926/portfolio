@@ -351,36 +351,33 @@ export default function DynamicPage() {
         <main style={{ paddingTop: NAV_H }}>
 
           {/* ══════════════════════════════════════════════════════════
-              HERO: image (left) + title + subtitle (right)
-              Exact proportions from screenshot:
-              - Image: 38% wide, 3:4 portrait ratio, rounded 8px
-              - Right col: top-aligned, subtitle above title (like a date/label)
-              - Gap: 48px
-              - Separator: 1px line below hero
+              HERO — exactly matching reference screenshot:
+              · Image: fixed 300px wide, fills height of right col,
+                borderRadius 10px, no forced aspect-ratio
+              · Right col: vertically centered, title → subtitle
+              · Container: max 900px, padding 60px sides
+              · Whole row: alignItems stretch so image fills height
           ══════════════════════════════════════════════════════════ */}
-          <div style={{ maxWidth: "1160px", margin: "0 auto", padding: "0 40px" }}>
-            <div style={{
-              display: "flex",
-              alignItems: "flex-start",   /* top-align both columns */
-              gap: "48px",
-              paddingTop: "48px",
-              paddingBottom: "52px",
-              borderBottom: "1px solid #e8e8e8",
-            }}>
-
-              {/* ── Left: cover image, 3:4 portrait ─────────────────── */}
+          <div style={{ maxWidth: "900px", margin: "0 auto", padding: "0 60px" }}>
+            {/* Desktop row */}
+            <div
+              className="hidden md:flex"
+              style={{
+                alignItems: "stretch",
+                gap: "52px",
+                paddingTop: "56px",
+                paddingBottom: "56px",
+                borderBottom: "1px solid #e8e8e8",
+              }}
+            >
+              {/* Left: image — fixed width, height stretches to match right col */}
               {hasCover && (
-                <div
-                  style={{
-                    flex: "0 0 38%",
-                    aspectRatio: "3 / 4",
-                    overflow: "hidden",
-                    borderRadius: "8px",
-                    /* subtle shadow like reference */
-                    boxShadow: "0 2px 16px rgba(0,0,0,0.10)",
-                  }}
-                  className="hidden md:block"
-                >
+                <div style={{
+                  flexShrink: 0,
+                  width: "300px",
+                  borderRadius: "10px",
+                  overflow: "hidden",
+                }}>
                   <img
                     src={pageData.coverImage}
                     alt=""
@@ -388,58 +385,70 @@ export default function DynamicPage() {
                       width: "100%",
                       height: "100%",
                       objectFit: "cover",
-                      objectPosition: "center top",
+                      objectPosition: "center",
                       display: "block",
                     }}
                   />
                 </div>
               )}
 
-              {/* Mobile: cover above title, landscape crop */}
-              {hasCover && (
-                <div style={{ borderRadius: "8px", overflow: "hidden", marginBottom: "28px" }}
-                  className="block md:hidden">
-                  <img src={pageData.coverImage} alt=""
-                    style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", display: "block" }} />
-                </div>
-              )}
-
-              {/* ── Right: subtitle (label) → title → description ────── */}
+              {/* Right: vertically centered — title on top, subtitle below */}
               <div style={{
                 flex: 1,
                 display: "flex",
                 flexDirection: "column",
-                paddingTop: hasCover ? "16px" : "0",  /* slight offset to visually center against portrait */
+                justifyContent: "center",
+                gap: "0",
+                minHeight: hasCover ? "340px" : "auto",
               }}>
-                {/* Subtitle — shown above title, like a date/category label */}
+                {pageData.title && (
+                  <h1 style={{
+                    fontFamily: SERIF,
+                    fontSize: "36px",
+                    fontWeight: 700,
+                    lineHeight: 1.2,
+                    letterSpacing: "-0.01em",
+                    color: "#111",
+                    margin: "0 0 16px 0",
+                  }}>
+                    {pageData.title}
+                  </h1>
+                )}
                 {pageData.subtitle && (
                   <p style={{
                     fontFamily: SANS,
-                    fontSize: "13px",
-                    lineHeight: 1.5,
-                    color: "#888",
-                    margin: "0 0 14px 0",
+                    fontSize: "16px",
+                    lineHeight: 1.65,
+                    color: "#444",
+                    margin: 0,
                     letterSpacing: "0",
                   }}>
                     {pageData.subtitle}
                   </p>
                 )}
-
-                {/* Title */}
-                {pageData.title && (
-                  <h1 style={{
-                    fontFamily: SERIF,
-                    fontSize: "34px",
-                    fontWeight: 700,
-                    lineHeight: 1.18,
-                    letterSpacing: "-0.01em",
-                    color: "#111",
-                    margin: "0 0 18px 0",
-                  }}>
-                    {pageData.title}
-                  </h1>
-                )}
               </div>
+            </div>
+
+            {/* Mobile: image above, title below */}
+            <div className="md:hidden" style={{ paddingTop: "32px", paddingBottom: "40px", borderBottom: "1px solid #e8e8e8" }}>
+              {hasCover && (
+                <div style={{ borderRadius: "10px", overflow: "hidden", marginBottom: "28px" }}>
+                  <img src={pageData.coverImage} alt=""
+                    style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", display: "block" }} />
+                </div>
+              )}
+              {pageData.title && (
+                <h1 style={{ fontFamily: SERIF, fontSize: "28px", fontWeight: 700,
+                  lineHeight: 1.2, color: "#111", margin: "0 0 12px 0" }}>
+                  {pageData.title}
+                </h1>
+              )}
+              {pageData.subtitle && (
+                <p style={{ fontFamily: SANS, fontSize: "15px", lineHeight: 1.65,
+                  color: "#444", margin: 0 }}>
+                  {pageData.subtitle}
+                </p>
+              )}
             </div>
           </div>
 
