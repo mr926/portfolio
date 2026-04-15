@@ -34,6 +34,7 @@ interface SiteSettings {
   landingBgMobile: string;
   landingStayMs: number;
   landingAnimMs: number;
+  landingHideMin: number;
   instagram: string;
   linkedin: string;
   email: string;
@@ -178,6 +179,7 @@ function HomeContent() {
           tagline={settings.siteTagline}
           stayMs={settings.landingStayMs}
           animMs={settings.landingAnimMs}
+          hideMin={settings.landingHideMin ?? 1440}
           onComplete={handleLandingComplete}
         />
       )}

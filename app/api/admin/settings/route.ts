@@ -26,7 +26,7 @@ export async function PUT(req: NextRequest) {
   const allowedFields = [
     "siteName", "siteTagline", "landingEnabled",
     "landingBgDesktop", "landingBgMobile",
-    "landingStayMs", "landingAnimMs",
+    "landingStayMs", "landingAnimMs", "landingHideMin",
     "instagram", "linkedin", "email", "location",
     // CDN
     "cdnUrl",

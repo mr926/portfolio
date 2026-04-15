@@ -9,10 +9,11 @@ interface LandingOverlayProps {
   tagline: string;
   stayMs: number;
   animMs: number;
+  hideMin: number;
   onComplete: () => void;
 }
 
-const LANDING_KEY = "chaoslab_landing_shown";
+const LANDING_KEY = "chaoslab_landing_ts";
 
 export default function LandingOverlay({
   bgDesktop,
@@ -21,18 +22,19 @@ export default function LandingOverlay({
   tagline,
   stayMs,
   animMs,
+  hideMin,
   onComplete,
 }: LandingOverlayProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Check if already shown today
-    const lastShown = localStorage.getItem(LANDING_KEY);
-    const today = new Date().toDateString();
+    // Check if enough time has passed since last shown
+    const lastTs = parseInt(localStorage.getItem(LANDING_KEY) || "0", 10);
+    const elapsed = Date.now() - lastTs;
+    const hideMs = hideMin * 60 * 1000;
 
-    if (lastShown === today) {
-      // Skip landing immediately
+    if (elapsed < hideMs) {
       onComplete();
       return;
     }
@@ -58,14 +60,14 @@ export default function LandingOverlay({
 
         // Done
         setTimeout(() => {
-          localStorage.setItem(LANDING_KEY, today);
+          localStorage.setItem(LANDING_KEY, String(Date.now()));
           onComplete();
         }, animMs);
       }, animMs * 0.6);
     }, stayMs);
 
     return () => clearTimeout(stayTimer);
-  }, [stayMs, animMs, onComplete]);
+  }, [stayMs, animMs, hideMin, onComplete]);
 
   const defaultBg =
     "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #0a0a0a 100%)";

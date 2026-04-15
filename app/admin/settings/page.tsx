@@ -22,6 +22,8 @@ interface SiteSettings {
   logoUrl: string;
   logoMode: string;
   faviconUrl: string;
+  // Landing hide duration
+  landingHideMin: number;
 }
 
 const INPUT_CLS =
@@ -219,8 +221,22 @@ export default function AdminSettingsPage() {
           <div className="flex items-center gap-3">
             <input type="checkbox" id="landingEnabled" checked={settings.landingEnabled} onChange={(e) => update("landingEnabled", e.target.checked)} className="w-4 h-4" />
             <label htmlFor="landingEnabled" className="text-[10px] uppercase tracking-widest text-[#5e5e5e]">
-              Enable landing screen (shown once per day)
+              Enable landing screen
             </label>
+          </div>
+          <div>
+            <label className={LABEL_CLS}>显示间隔（分钟）</label>
+            <input
+              type="number"
+              value={settings.landingHideMin}
+              onChange={(e) => update("landingHideMin", parseInt(e.target.value) || 1)}
+              className={INPUT_CLS}
+              min="1"
+              step="1"
+            />
+            <p className="text-[9px] text-[#c6c6c6] mt-2">
+              Landing 显示一次后，间隔多少分钟再次显示。默认 1440（24 小时）。
+            </p>
           </div>
           <div className="grid grid-cols-2 gap-6">
             <div>

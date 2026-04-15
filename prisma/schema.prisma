@@ -85,6 +85,7 @@ model SiteSettings {
   landingBgMobile  String   @default("")
   landingStayMs    Int      @default(1000)
   landingAnimMs    Int      @default(1000)
+  landingHideMin   Int      @default(1440)
   instagram        String   @default("")
   linkedin         String   @default("")
   email            String   @default("")
