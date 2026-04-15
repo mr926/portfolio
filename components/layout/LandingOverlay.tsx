@@ -114,8 +114,8 @@ export default function LandingOverlay({
       <div className="absolute inset-0">
         {bgDesktop ? (
           <>
-            <img src={bgDesktop} alt="" className="hidden md:block w-full h-full object-cover" />
-            <img src={bgMobile || bgDesktop} alt="" className="md:hidden w-full h-full object-cover" />
+            <img src={bgDesktop} alt="" className="hidden md:block absolute inset-0 w-full h-full object-cover" />
+            <img src={bgMobile || bgDesktop} alt="" className="md:hidden absolute inset-0 w-full h-full object-cover" />
           </>
         ) : (
           <div className="w-full h-full" style={{ background: defaultBg }} />

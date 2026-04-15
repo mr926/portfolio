@@ -229,13 +229,16 @@ export default function AdminSettingsPage() {
             <input
               type="number"
               value={settings.landingHideMin}
-              onChange={(e) => update("landingHideMin", parseInt(e.target.value) || 1)}
+              onChange={(e) => {
+                const v = parseInt(e.target.value);
+                update("landingHideMin", isNaN(v) ? 1 : Math.max(0, v));
+              }}
               className={INPUT_CLS}
-              min="1"
+              min="0"
               step="1"
             />
             <p className="text-[9px] text-[#c6c6c6] mt-2">
-              Landing 显示一次后，间隔多少分钟再次显示。默认 1440（24 小时）。
+              Landing 显示一次后，间隔多少分钟再次显示。设为 0 则每次打开首页都显示。默认 1440（24 小时）。
             </p>
           </div>
           <div className="grid grid-cols-2 gap-6">
