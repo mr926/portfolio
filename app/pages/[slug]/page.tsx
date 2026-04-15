@@ -63,7 +63,7 @@ function TocSidebar({ entries, activeId }: { entries: TocEntry[]; activeId: stri
         marginBottom: "14px",
         marginTop: 0,
       }}>
-        On this page
+        目录
       </p>
 
       <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
@@ -467,6 +467,7 @@ export default function DynamicPage() {
                   top: NAV_H + 32,
                   maxHeight: `calc(100vh - ${NAV_H + 64}px)`,
                   overflowY: "auto",
+                  paddingTop: "3em",
                 }}
                 className="hidden md:block"
               >
