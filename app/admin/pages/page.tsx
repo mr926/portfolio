@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import MarkdownEditor from "@/components/admin/MarkdownEditor";
 
 interface Page {
   id: string;
@@ -288,13 +289,10 @@ export default function AdminPagesPage() {
 
               {/* Content */}
               <div>
-                <label className={LABEL_CLS}>Content (HTML / Markdown-style HTML)</label>
-                <textarea
+                <label className={LABEL_CLS}>Content (Markdown)</label>
+                <MarkdownEditor
                   value={form.content}
-                  onChange={(e) => upd("content", e.target.value)}
-                  rows={20}
-                  className="w-full bg-transparent border border-[#c6c6c6] p-4 text-sm font-mono focus:outline-none focus:border-black transition-colors resize-y"
-                  placeholder="<h2>Title</h2><p>Content...</p>"
+                  onChange={(v) => upd("content", v)}
                 />
               </div>
 
