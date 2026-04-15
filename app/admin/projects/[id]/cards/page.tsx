@@ -14,6 +14,7 @@ interface ProjectCard {
   content?: string | null;
   panoramaUrl?: string | null;
   panoramaPreviewUrl?: string | null;
+  textWidth?: string | null;
 }
 
 interface Project {
@@ -44,6 +45,7 @@ export default function CardsPage() {
     content: "",
     panoramaUrl: "",
     panoramaPreviewUrl: "",
+    textWidth: "narrow",
   });
   const [cardSaving, setCardSaving] = useState(false);
   const [cardError, setCardError] = useState("");
@@ -68,7 +70,7 @@ export default function CardsPage() {
     setNewCardType(type);
     setEditCardId(null);
     setCardError("");
-    setCardForm({ title: "", imageUrl: "", imageAlt: "", content: "", panoramaUrl: "", panoramaPreviewUrl: "" });
+    setCardForm({ title: "", imageUrl: "", imageAlt: "", content: "", panoramaUrl: "", panoramaPreviewUrl: "", textWidth: "narrow" });
     setShowAddForm(true);
   }
 
@@ -83,6 +85,7 @@ export default function CardsPage() {
       content: card.content || "",
       panoramaUrl: card.panoramaUrl || "",
       panoramaPreviewUrl: card.panoramaPreviewUrl || "",
+      textWidth: card.textWidth || "narrow",
     });
     setShowAddForm(true);
   }
@@ -100,6 +103,7 @@ export default function CardsPage() {
       payload.imageAlt = cardForm.imageAlt;
     } else if (newCardType === "text") {
       payload.content = cardForm.content;
+      payload.textWidth = cardForm.textWidth;
     } else if (newCardType === "panorama") {
       payload.panoramaUrl = cardForm.panoramaUrl;
       payload.panoramaPreviewUrl = cardForm.panoramaPreviewUrl;
@@ -276,6 +280,9 @@ export default function CardsPage() {
                 {card.type === "text" && (
                   <p className="text-[11px] text-[#5e5e5e] line-clamp-2">
                     {card.content?.slice(0, 100) || "(empty)"}
+                    {card.textWidth === "wide" && (
+                      <span className="ml-2 text-[9px] bg-[#f3f3f4] px-1.5 py-0.5 text-[#5e5e5e] font-bold uppercase tracking-widest">宽</span>
+                    )}
                   </p>
                 )}
                 {card.type === "panorama" && (
@@ -377,6 +384,36 @@ export default function CardsPage() {
                       placeholder="例：项目背景、设计说明…"
                     />
                   </div>
+
+                  {/* Width selector */}
+                  <div>
+                    <label className="block text-[10px] uppercase tracking-widest text-[#5e5e5e] mb-3">
+                      卡片宽度
+                    </label>
+                    <div className="flex gap-3">
+                      {[
+                        { value: "narrow", label: "窄", desc: "520px" },
+                        { value: "wide",   label: "宽", desc: "832px" },
+                      ].map((opt) => (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setCardForm((f) => ({ ...f, textWidth: opt.value }))}
+                          className={`flex-1 py-3 border text-[10px] font-bold tracking-widest uppercase transition-colors ${
+                            cardForm.textWidth === opt.value
+                              ? "bg-black text-white border-black"
+                              : "border-[#c6c6c6] text-[#5e5e5e] hover:border-black"
+                          }`}
+                        >
+                          {opt.label}
+                          <span className={`block text-[8px] font-normal tracking-normal normal-case mt-0.5 ${
+                            cardForm.textWidth === opt.value ? "text-white/60" : "text-[#c6c6c6]"
+                          }`}>{opt.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   <div>
                     <label className="block text-[10px] uppercase tracking-widest text-[#5e5e5e] mb-2">
                       Content (Markdown)

@@ -29,7 +29,7 @@ export async function POST(req: NextRequest, { params }: Params) {
   }
 
   const { id: projectId } = await params;
-  const { type, order, title, imageUrl, imageAlt, content, panoramaUrl, panoramaPreviewUrl } = await req.json();
+  const { type, order, title, imageUrl, imageAlt, content, panoramaUrl, panoramaPreviewUrl, textWidth } = await req.json();
 
   if (!type || !["image", "text", "panorama"].includes(type)) {
     return NextResponse.json(
@@ -49,6 +49,7 @@ export async function POST(req: NextRequest, { params }: Params) {
       content: content ?? null,
       panoramaUrl: panoramaUrl ?? null,
       panoramaPreviewUrl: panoramaPreviewUrl ?? null,
+      textWidth: textWidth ?? "narrow",
     },
   });
 

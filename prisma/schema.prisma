@@ -55,6 +55,7 @@ model ProjectCard {
   content     String?
   panoramaUrl        String?
   panoramaPreviewUrl String?
+  textWidth          String   @default("narrow") // "narrow" | "wide" — only applies to type=text
   createdAt          DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

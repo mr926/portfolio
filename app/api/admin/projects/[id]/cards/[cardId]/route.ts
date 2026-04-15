@@ -14,7 +14,7 @@ export async function PUT(req: NextRequest, { params }: Params) {
   const { id: projectId, cardId } = await params;
   const data = await req.json();
 
-  const allowedFields = ["type", "order", "title", "imageUrl", "imageAlt", "content", "panoramaUrl", "panoramaPreviewUrl"];
+  const allowedFields = ["type", "order", "title", "imageUrl", "imageAlt", "content", "panoramaUrl", "panoramaPreviewUrl", "textWidth"];
   const updateData: Record<string, unknown> = {};
   for (const field of allowedFields) {
     if (field in data) updateData[field] = data[field];

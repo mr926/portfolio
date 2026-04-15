@@ -22,6 +22,7 @@ interface ProjectCard {
   content?: string | null;
   panoramaUrl?: string | null;
   panoramaPreviewUrl?: string | null;
+  textWidth?: string | null;
 }
 
 interface Project {
@@ -44,7 +45,8 @@ interface ProjectDetailPanelProps {
 type DimMap = Record<string, { w: number; h: number }>;
 
 const CARD_GAP = 40;
-const TEXT_CARD_W = 520;
+const TEXT_CARD_W_NARROW = 520;
+const TEXT_CARD_W_WIDE   = Math.round(520 * 1.6); // 832
 const PANORAMA_CARD_W = 700;
 
 export default function ProjectDetailPanel({
@@ -157,7 +159,9 @@ export default function ProjectDetailPanel({
     const viewH = typeof window !== "undefined" ? window.innerHeight : 900;
     const viewW = typeof window !== "undefined" ? window.innerWidth : 1440;
     return cards.map((card) => {
-      if (card.type === "text") return TEXT_CARD_W;
+      if (card.type === "text") {
+        return card.textWidth === "wide" ? TEXT_CARD_W_WIDE : TEXT_CARD_W_NARROW;
+      }
       if (card.type === "panorama") return PANORAMA_CARD_W;
       const d = dims[card.imageUrl || ""];
       if (d && d.h > 0) {
@@ -267,7 +271,7 @@ export default function ProjectDetailPanel({
                 }}
               >
                 {cards.map((card, i) => {
-                  const w = cardWidths[i] ?? TEXT_CARD_W;
+                  const w = cardWidths[i] ?? TEXT_CARD_W_NARROW;
 
                   if (card.type === "image") {
                     return (
