@@ -106,6 +106,8 @@ model Page {
   slug      String   @unique
   title     String   @default("")
   content   String   @default("")
+  showInNav Boolean  @default(false)
+  navOrder  Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

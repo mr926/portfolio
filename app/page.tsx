@@ -44,6 +44,7 @@ interface SiteSettings {
 
 interface FooterLink { id: string; label: string; url: string; }
 interface FooterColumn { id: string; title: string; links: FooterLink[]; }
+interface NavPage { slug: string; title: string; }
 
 const PAGE_SIZE = 12;
 
@@ -54,6 +55,7 @@ function HomeContent() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [footerColumns, setFooterColumns] = useState<FooterColumn[]>([]);
+  const [navPages, setNavPages] = useState<NavPage[]>([]);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
   const [activeCategory, setActiveCategory] = useState<string>("all");
@@ -92,6 +94,13 @@ function HomeContent() {
     fetch("/api/public/footer")
       .then((r) => r.json())
       .then((d) => { if (d.success) setFooterColumns(d.data); });
+  }, []);
+
+  // Fetch nav pages
+  useEffect(() => {
+    fetch("/api/public/pages")
+      .then((r) => r.json())
+      .then((d) => { if (d.success) setNavPages(d.data); });
   }, []);
 
   // Fetch categories
@@ -157,6 +166,7 @@ function HomeContent() {
   const navItems = [
     { label: "Works", href: "/" },
     { label: "About", href: "/about" },
+    ...navPages.map((p) => ({ label: p.title, href: `/pages/${p.slug}` })),
   ];
 
   return (
