@@ -358,93 +358,56 @@ export default function DynamicPage() {
               · Whole row: alignItems stretch so image fills height
           ══════════════════════════════════════════════════════════ */}
           <div style={{ maxWidth: "860px", margin: "0 auto", padding: "0 48px" }}>
-            {/* Desktop row */}
-            <div
-              className="hidden md:flex"
-              style={{
-                alignItems: "center",
-                gap: "48px",
-                paddingTop: "48px",
-                paddingBottom: "48px",
-                borderBottom: "1px solid #e8e8e8",
-              }}
-            >
-              {/* Left: image — fixed size, 3:2 ratio */}
-              {hasCover && (
-                <div style={{
-                  flexShrink: 0,
-                  width: "260px",
-                  height: "180px",
-                  borderRadius: "8px",
-                  overflow: "hidden",
-                }}>
-                  <img
-                    src={pageData.coverImage}
-                    alt=""
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                      objectPosition: "center",
-                      display: "block",
-                    }}
-                  />
-                </div>
-              )}
 
-              {/* Right: title → subtitle, top-aligned with a little centering */}
+            {/* Banner image — top, wide, not full page width */}
+            {hasCover && (
               <div style={{
-                flex: 1,
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                gap: "0",
+                marginTop: "40px",
+                borderRadius: "10px",
+                overflow: "hidden",
               }}>
-                {pageData.title && (
-                  <h1 style={{
-                    fontFamily: SERIF,
-                    fontSize: "32px",
-                    fontWeight: 700,
-                    lineHeight: 1.25,
-                    letterSpacing: "-0.01em",
-                    color: "#111",
-                    margin: "0 0 12px 0",
-                  }}>
-                    {pageData.title}
-                  </h1>
-                )}
-                {pageData.subtitle && (
-                  <p style={{
-                    fontFamily: SANS,
-                    fontSize: "14px",
-                    lineHeight: 1.65,
-                    color: "#666",
-                    margin: 0,
-                    letterSpacing: "0.01em",
-                  }}>
-                    {pageData.subtitle}
-                  </p>
-                )}
+                <img
+                  src={pageData.coverImage}
+                  alt=""
+                  style={{
+                    width: "100%",
+                    aspectRatio: "21 / 9",
+                    objectFit: "cover",
+                    objectPosition: "center",
+                    display: "block",
+                  }}
+                />
               </div>
-            </div>
+            )}
 
-            {/* Mobile: image above, title below */}
-            <div className="md:hidden" style={{ paddingTop: "28px", paddingBottom: "32px", borderBottom: "1px solid #e8e8e8" }}>
-              {hasCover && (
-                <div style={{ borderRadius: "8px", overflow: "hidden", marginBottom: "20px" }}>
-                  <img src={pageData.coverImage} alt=""
-                    style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block" }} />
-                </div>
-              )}
+            {/* Title + subtitle block below banner */}
+            <div style={{
+              paddingTop: hasCover ? "32px" : "48px",
+              paddingBottom: "40px",
+              borderBottom: "1px solid #e8e8e8",
+            }}>
               {pageData.title && (
-                <h1 style={{ fontFamily: SERIF, fontSize: "24px", fontWeight: 700,
-                  lineHeight: 1.25, color: "#111", margin: "0 0 10px 0" }}>
+                <h1 style={{
+                  fontFamily: SERIF,
+                  fontSize: "34px",
+                  fontWeight: 700,
+                  lineHeight: 1.25,
+                  letterSpacing: "-0.01em",
+                  color: "#111",
+                  margin: "0 0 12px 0",
+                }}>
                   {pageData.title}
                 </h1>
               )}
               {pageData.subtitle && (
-                <p style={{ fontFamily: SANS, fontSize: "13px", lineHeight: 1.65,
-                  color: "#666", margin: 0 }}>
+                <p style={{
+                  fontFamily: SANS,
+                  fontSize: "15px",
+                  lineHeight: 1.7,
+                  color: "#666",
+                  margin: 0,
+                  letterSpacing: "0.01em",
+                }}>
                   {pageData.subtitle}
                 </p>
               )}
