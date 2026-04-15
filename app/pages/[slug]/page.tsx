@@ -357,30 +357,26 @@ export default function DynamicPage() {
               · Container: max 900px, padding 60px sides
               · Whole row: alignItems stretch so image fills height
           ══════════════════════════════════════════════════════════ */}
+          {/* ── Full-width banner ── outside the content container ── */}
+          {hasCover && (
+            <div style={{ width: "100%", overflow: "hidden" }}>
+              {/* Responsive aspect ratio: 3/4 mobile → 16/9 tablet → 21/9 desktop */}
+              <img
+                src={pageData.coverImage}
+                alt=""
+                className="
+                  w-full object-cover object-center block
+                  aspect-[3/4]
+                  sm:aspect-[16/9]
+                  xl:aspect-[21/9]
+                "
+                style={{ display: "block" }}
+              />
+            </div>
+          )}
+
+          {/* ── Title + subtitle ── inside the content container ── */}
           <div style={{ maxWidth: "860px", margin: "0 auto", padding: "0 48px" }}>
-
-            {/* Banner image — top, wide, not full page width */}
-            {hasCover && (
-              <div style={{
-                marginTop: "40px",
-                borderRadius: "10px",
-                overflow: "hidden",
-              }}>
-                <img
-                  src={pageData.coverImage}
-                  alt=""
-                  style={{
-                    width: "100%",
-                    aspectRatio: "21 / 9",
-                    objectFit: "cover",
-                    objectPosition: "center",
-                    display: "block",
-                  }}
-                />
-              </div>
-            )}
-
-            {/* Title + subtitle block below banner */}
             <div style={{
               paddingTop: hasCover ? "32px" : "48px",
               paddingBottom: "40px",
