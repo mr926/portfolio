@@ -180,6 +180,8 @@ function HomeContent() {
           stayMs={settings.landingStayMs}
           animMs={settings.landingAnimMs}
           hideMin={settings.landingHideMin ?? 1440}
+          logoUrl={settings.logoUrl}
+          logoMode={(settings.logoMode as "name" | "logo" | "both") || "name"}
           onComplete={handleLandingComplete}
         />
       )}
