@@ -1,0 +1,1 @@
+ALTER TABLE "Page" ADD COLUMN "subtitle" TEXT NOT NULL DEFAULT '';

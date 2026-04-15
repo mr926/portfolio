@@ -8,6 +8,7 @@ interface Page {
   id: string;
   slug: string;
   title: string;
+  subtitle: string;
   content: string;
   coverImage: string;
   showInNav: boolean;
@@ -17,6 +18,7 @@ interface Page {
 type FormState = {
   slug: string;
   title: string;
+  subtitle: string;
   content: string;
   coverImage: string;
   showInNav: boolean;
@@ -26,6 +28,7 @@ type FormState = {
 const EMPTY_FORM: FormState = {
   slug: "",
   title: "",
+  subtitle: "",
   content: "",
   coverImage: "",
   showInNav: false,
@@ -63,6 +66,7 @@ export default function AdminPagesPage() {
     setForm({
       slug: page.slug,
       title: page.title,
+      subtitle: page.subtitle,
       content: page.content,
       coverImage: page.coverImage,
       showInNav: page.showInNav,
@@ -251,6 +255,18 @@ export default function AdminPagesPage() {
                   onChange={(e) => upd("title", e.target.value)}
                   className={INPUT_CLS}
                   placeholder="About CHAOS LAB"
+                />
+              </div>
+
+              {/* Subtitle */}
+              <div>
+                <label className={LABEL_CLS}>副标题 <span className="text-[#c6c6c6] normal-case tracking-normal">（可为空）</span></label>
+                <input
+                  type="text"
+                  value={form.subtitle}
+                  onChange={(e) => upd("subtitle", e.target.value)}
+                  className={INPUT_CLS}
+                  placeholder="一句话介绍本文的核心内容"
                 />
               </div>
 

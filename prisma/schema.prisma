@@ -104,15 +104,16 @@ model SiteSettings {
 //  Page — CMS 页面（about, news 等）
 // ────────────────────────────────
 model Page {
-  id        String   @id @default(cuid())
-  slug      String   @unique
-  title     String   @default("")
-  content   String   @default("")
-  coverImage String  @default("")
-  showInNav Boolean  @default(false)
-  navOrder  Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(cuid())
+  slug       String   @unique
+  title      String   @default("")
+  subtitle   String   @default("")
+  content    String   @default("")
+  coverImage String   @default("")
+  showInNav  Boolean  @default(false)
+  navOrder   Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 // ────────────────────────────────
