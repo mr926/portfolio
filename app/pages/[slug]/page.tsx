@@ -162,16 +162,16 @@ const mdComponents = {
     </h3>
   ),
 
-  /* Body text: 17px / 1.75 — matches reference screenshot closely */
+  /* Body text: paragraph spacing reduced to match reference */
   p: ({ children }: React.HTMLAttributes<HTMLParagraphElement>) => (
     <p style={{
       fontFamily: SANS,
       fontSize: "17px",
-      lineHeight: "1.75",
+      lineHeight: "1.7",
       letterSpacing: "0.01em",
       color: "#222",
       marginTop: 0,
-      marginBottom: "1.5em",
+      marginBottom: "1em",
     }}>
       {children}
     </p>
@@ -202,15 +202,15 @@ const mdComponents = {
   ),
 
   ul: ({ children }: React.HTMLAttributes<HTMLUListElement>) => (
-    <ul style={{ fontFamily: SANS, fontSize: "17px", lineHeight: "1.75", color: "#222",
-      paddingLeft: "1.5em", marginBottom: "1.5em", listStyleType: "disc" }}>
+    <ul style={{ fontFamily: SANS, fontSize: "17px", lineHeight: "1.7", color: "#222",
+      paddingLeft: "1.5em", marginBottom: "1em", listStyleType: "disc" }}>
       {children}
     </ul>
   ),
 
   ol: ({ children }: React.HTMLAttributes<HTMLOListElement>) => (
-    <ol style={{ fontFamily: SANS, fontSize: "17px", lineHeight: "1.75", color: "#222",
-      paddingLeft: "1.5em", marginBottom: "1.5em", listStyleType: "decimal" }}>
+    <ol style={{ fontFamily: SANS, fontSize: "17px", lineHeight: "1.7", color: "#222",
+      paddingLeft: "1.5em", marginBottom: "1em", listStyleType: "decimal" }}>
       {children}
     </ol>
   ),
@@ -351,85 +351,93 @@ export default function DynamicPage() {
         <main style={{ paddingTop: NAV_H }}>
 
           {/* ══════════════════════════════════════════════════════════
-              HERO: image (left) + title + subtitle (right), same row
-              Matches reference: no full-width banner, image is one column.
-              If no cover image → title block only, full-width centered.
+              HERO: image (left) + title + subtitle (right)
+              Exact proportions from screenshot:
+              - Image: 38% wide, 3:4 portrait ratio, rounded 8px
+              - Right col: top-aligned, subtitle above title (like a date/label)
+              - Gap: 48px
+              - Separator: 1px line below hero
           ══════════════════════════════════════════════════════════ */}
-          <div style={{
-            maxWidth: "1160px",
-            margin: "0 auto",
-            padding: "0 40px",
-          }}>
+          <div style={{ maxWidth: "1160px", margin: "0 auto", padding: "0 40px" }}>
             <div style={{
               display: "flex",
-              alignItems: "stretch",
-              gap: "56px",
-              paddingTop: "56px",
-              paddingBottom: "48px",
-              borderBottom: "1px solid #e5e5e5",
-            }}
-            className="flex-col md:flex-row"
-            >
-              {/* Left: cover image */}
+              alignItems: "flex-start",   /* top-align both columns */
+              gap: "48px",
+              paddingTop: "48px",
+              paddingBottom: "52px",
+              borderBottom: "1px solid #e8e8e8",
+            }}>
+
+              {/* ── Left: cover image, 3:4 portrait ─────────────────── */}
               {hasCover && (
-                <div style={{
-                  flex: "0 0 42%",
-                  minHeight: "280px",
-                  maxHeight: "480px",
-                  overflow: "hidden",
-                  borderRadius: "4px",
-                }}
-                className="hidden md:block"
+                <div
+                  style={{
+                    flex: "0 0 38%",
+                    aspectRatio: "3 / 4",
+                    overflow: "hidden",
+                    borderRadius: "8px",
+                    /* subtle shadow like reference */
+                    boxShadow: "0 2px 16px rgba(0,0,0,0.10)",
+                  }}
+                  className="hidden md:block"
                 >
                   <img
                     src={pageData.coverImage}
                     alt=""
-                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      objectPosition: "center top",
+                      display: "block",
+                    }}
                   />
                 </div>
               )}
 
-              {/* Mobile: cover above title */}
+              {/* Mobile: cover above title, landscape crop */}
               {hasCover && (
-                <div style={{ borderRadius: "4px", overflow: "hidden", marginBottom: "32px" }}
+                <div style={{ borderRadius: "8px", overflow: "hidden", marginBottom: "28px" }}
                   className="block md:hidden">
                   <img src={pageData.coverImage} alt=""
-                    style={{ width: "100%", height: "240px", objectFit: "cover", display: "block" }} />
+                    style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", display: "block" }} />
                 </div>
               )}
 
-              {/* Right: title + subtitle */}
+              {/* ── Right: subtitle (label) → title → description ────── */}
               <div style={{
                 flex: 1,
                 display: "flex",
                 flexDirection: "column",
-                justifyContent: "center",
-                gap: "16px",
+                paddingTop: hasCover ? "16px" : "0",  /* slight offset to visually center against portrait */
               }}>
-                {pageData.title && (
-                  <h1 style={{
-                    fontFamily: SERIF,
-                    fontSize: "clamp(30px, 3.8vw, 48px)",
-                    fontWeight: 700,
-                    lineHeight: 1.14,
-                    letterSpacing: "-0.02em",
-                    color: "#111",
-                    margin: 0,
-                  }}>
-                    {pageData.title}
-                  </h1>
-                )}
+                {/* Subtitle — shown above title, like a date/category label */}
                 {pageData.subtitle && (
                   <p style={{
                     fontFamily: SANS,
-                    fontSize: "17px",
-                    lineHeight: 1.6,
-                    color: "#666",
-                    margin: 0,
-                    letterSpacing: "0.01em",
+                    fontSize: "13px",
+                    lineHeight: 1.5,
+                    color: "#888",
+                    margin: "0 0 14px 0",
+                    letterSpacing: "0",
                   }}>
                     {pageData.subtitle}
                   </p>
+                )}
+
+                {/* Title */}
+                {pageData.title && (
+                  <h1 style={{
+                    fontFamily: SERIF,
+                    fontSize: "34px",
+                    fontWeight: 700,
+                    lineHeight: 1.18,
+                    letterSpacing: "-0.01em",
+                    color: "#111",
+                    margin: "0 0 18px 0",
+                  }}>
+                    {pageData.title}
+                  </h1>
                 )}
               </div>
             </div>
