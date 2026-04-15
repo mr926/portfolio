@@ -114,12 +114,12 @@ const mdComponents = {
     return (
       <h1 id={slugify(text)} style={{
         fontFamily: SERIF,
-        fontSize: "42px",
+        fontSize: "26px",
         fontWeight: 700,
-        lineHeight: 1.18,
-        letterSpacing: "-0.01em",
+        lineHeight: 1.3,
+        letterSpacing: "-0.005em",
         color: "#111",
-        marginTop: "2.2em",
+        marginTop: "2em",
         marginBottom: "0.5em",
         scrollMarginTop: "90px",
       }}>
@@ -133,13 +133,13 @@ const mdComponents = {
     return (
       <h2 id={slugify(text)} style={{
         fontFamily: SERIF,
-        fontSize: "30px",
+        fontSize: "20px",
         fontWeight: 700,
-        lineHeight: 1.22,
-        letterSpacing: "-0.005em",
+        lineHeight: 1.35,
+        letterSpacing: "0",
         color: "#111",
-        marginTop: "2em",
-        marginBottom: "0.45em",
+        marginTop: "1.8em",
+        marginBottom: "0.4em",
         scrollMarginTop: "90px",
       }}>
         {children}
@@ -150,28 +150,27 @@ const mdComponents = {
   h3: ({ children }: React.HTMLAttributes<HTMLHeadingElement>) => (
     <h3 style={{
       fontFamily: SANS,
-      fontSize: "18px",
+      fontSize: "16px",
       fontWeight: 700,
-      lineHeight: 1.4,
+      lineHeight: 1.45,
       color: "#111",
-      marginTop: "1.8em",
-      marginBottom: "0.4em",
+      marginTop: "1.6em",
+      marginBottom: "0.35em",
       scrollMarginTop: "90px",
     }}>
       {children}
     </h3>
   ),
 
-  /* Body text: paragraph spacing reduced to match reference */
   p: ({ children }: React.HTMLAttributes<HTMLParagraphElement>) => (
     <p style={{
       fontFamily: SANS,
-      fontSize: "17px",
-      lineHeight: "1.7",
+      fontSize: "15px",
+      lineHeight: "1.8",
       letterSpacing: "0.01em",
-      color: "#222",
+      color: "#333",
       marginTop: 0,
-      marginBottom: "1em",
+      marginBottom: "0.9em",
     }}>
       {children}
     </p>
@@ -189,28 +188,28 @@ const mdComponents = {
   blockquote: ({ children }: React.HTMLAttributes<HTMLElement>) => (
     <blockquote style={{
       borderLeft: "3px solid #ddd",
-      paddingLeft: "1.4em",
-      margin: "2em 0",
-      color: "#555",
+      paddingLeft: "1.2em",
+      margin: "1.6em 0",
+      color: "#666",
       fontStyle: "italic",
       fontFamily: SERIF,
-      fontSize: "19px",
-      lineHeight: 1.7,
+      fontSize: "16px",
+      lineHeight: 1.75,
     }}>
       {children}
     </blockquote>
   ),
 
   ul: ({ children }: React.HTMLAttributes<HTMLUListElement>) => (
-    <ul style={{ fontFamily: SANS, fontSize: "17px", lineHeight: "1.7", color: "#222",
-      paddingLeft: "1.5em", marginBottom: "1em", listStyleType: "disc" }}>
+    <ul style={{ fontFamily: SANS, fontSize: "15px", lineHeight: "1.8", color: "#333",
+      paddingLeft: "1.4em", marginBottom: "0.9em", listStyleType: "disc" }}>
       {children}
     </ul>
   ),
 
   ol: ({ children }: React.HTMLAttributes<HTMLOListElement>) => (
-    <ol style={{ fontFamily: SANS, fontSize: "17px", lineHeight: "1.7", color: "#222",
-      paddingLeft: "1.5em", marginBottom: "1em", listStyleType: "decimal" }}>
+    <ol style={{ fontFamily: SANS, fontSize: "15px", lineHeight: "1.8", color: "#333",
+      paddingLeft: "1.4em", marginBottom: "0.9em", listStyleType: "decimal" }}>
       {children}
     </ol>
   ),
@@ -358,24 +357,25 @@ export default function DynamicPage() {
               · Container: max 900px, padding 60px sides
               · Whole row: alignItems stretch so image fills height
           ══════════════════════════════════════════════════════════ */}
-          <div style={{ maxWidth: "900px", margin: "0 auto", padding: "0 60px" }}>
+          <div style={{ maxWidth: "860px", margin: "0 auto", padding: "0 48px" }}>
             {/* Desktop row */}
             <div
               className="hidden md:flex"
               style={{
-                alignItems: "stretch",
-                gap: "52px",
-                paddingTop: "56px",
-                paddingBottom: "56px",
+                alignItems: "center",
+                gap: "48px",
+                paddingTop: "48px",
+                paddingBottom: "48px",
                 borderBottom: "1px solid #e8e8e8",
               }}
             >
-              {/* Left: image — fixed width, height stretches to match right col */}
+              {/* Left: image — fixed size, 3:2 ratio */}
               {hasCover && (
                 <div style={{
                   flexShrink: 0,
-                  width: "300px",
-                  borderRadius: "10px",
+                  width: "260px",
+                  height: "180px",
+                  borderRadius: "8px",
                   overflow: "hidden",
                 }}>
                   <img
@@ -392,24 +392,23 @@ export default function DynamicPage() {
                 </div>
               )}
 
-              {/* Right: vertically centered — title on top, subtitle below */}
+              {/* Right: title → subtitle, top-aligned with a little centering */}
               <div style={{
                 flex: 1,
                 display: "flex",
                 flexDirection: "column",
                 justifyContent: "center",
                 gap: "0",
-                minHeight: hasCover ? "340px" : "auto",
               }}>
                 {pageData.title && (
                   <h1 style={{
                     fontFamily: SERIF,
-                    fontSize: "36px",
+                    fontSize: "32px",
                     fontWeight: 700,
-                    lineHeight: 1.2,
+                    lineHeight: 1.25,
                     letterSpacing: "-0.01em",
                     color: "#111",
-                    margin: "0 0 16px 0",
+                    margin: "0 0 12px 0",
                   }}>
                     {pageData.title}
                   </h1>
@@ -417,11 +416,11 @@ export default function DynamicPage() {
                 {pageData.subtitle && (
                   <p style={{
                     fontFamily: SANS,
-                    fontSize: "16px",
+                    fontSize: "14px",
                     lineHeight: 1.65,
-                    color: "#444",
+                    color: "#666",
                     margin: 0,
-                    letterSpacing: "0",
+                    letterSpacing: "0.01em",
                   }}>
                     {pageData.subtitle}
                   </p>
@@ -430,22 +429,22 @@ export default function DynamicPage() {
             </div>
 
             {/* Mobile: image above, title below */}
-            <div className="md:hidden" style={{ paddingTop: "32px", paddingBottom: "40px", borderBottom: "1px solid #e8e8e8" }}>
+            <div className="md:hidden" style={{ paddingTop: "28px", paddingBottom: "32px", borderBottom: "1px solid #e8e8e8" }}>
               {hasCover && (
-                <div style={{ borderRadius: "10px", overflow: "hidden", marginBottom: "28px" }}>
+                <div style={{ borderRadius: "8px", overflow: "hidden", marginBottom: "20px" }}>
                   <img src={pageData.coverImage} alt=""
-                    style={{ width: "100%", aspectRatio: "4/3", objectFit: "cover", display: "block" }} />
+                    style={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block" }} />
                 </div>
               )}
               {pageData.title && (
-                <h1 style={{ fontFamily: SERIF, fontSize: "28px", fontWeight: 700,
-                  lineHeight: 1.2, color: "#111", margin: "0 0 12px 0" }}>
+                <h1 style={{ fontFamily: SERIF, fontSize: "24px", fontWeight: 700,
+                  lineHeight: 1.25, color: "#111", margin: "0 0 10px 0" }}>
                   {pageData.title}
                 </h1>
               )}
               {pageData.subtitle && (
-                <p style={{ fontFamily: SANS, fontSize: "15px", lineHeight: 1.65,
-                  color: "#444", margin: 0 }}>
+                <p style={{ fontFamily: SANS, fontSize: "13px", lineHeight: 1.65,
+                  color: "#666", margin: 0 }}>
                   {pageData.subtitle}
                 </p>
               )}
