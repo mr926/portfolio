@@ -97,6 +97,7 @@ model SiteSettings {
   logoUrl      String  @default("")
   logoMode     String  @default("name")
   faviconUrl   String  @default("")
+  landingLogoUrl String @default("")
   updatedAt        DateTime @updatedAt
 }
 

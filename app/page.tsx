@@ -41,7 +41,7 @@ interface SiteSettings {
   logoUrl: string;
   logoMode: string;
   faviconUrl: string;
-  landingLogoUrl: string;
+  landingLogoUrl: string | null;
 }
 
 interface FooterLink { id: string; label: string; url: string; }
@@ -182,7 +182,7 @@ function HomeContent() {
           animMs={settings.landingAnimMs}
           hideMin={settings.landingHideMin ?? 1440}
           logoUrl={settings.logoUrl}
-          landingLogoUrl={settings.landingLogoUrl}
+          landingLogoUrl={settings.landingLogoUrl ?? undefined}
           logoMode={(settings.logoMode as "name" | "logo" | "both") || "name"}
           onComplete={handleLandingComplete}
         />

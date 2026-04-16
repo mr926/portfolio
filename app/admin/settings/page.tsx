@@ -23,7 +23,6 @@ interface SiteSettings {
   logoMode: string;
   faviconUrl: string;
   landingLogoUrl: string;
-  // Landing hide duration
   landingHideMin: number;
 }
 
@@ -185,7 +184,7 @@ export default function AdminSettingsPage() {
           {/* Landing 专用 Logo */}
           <ImageUpload
             label="Landing 页面 Logo（留空则使用导航栏 Logo）"
-            value={settings.landingLogoUrl}
+            value={settings.landingLogoUrl ?? ""}
             onChange={(url) => update("landingLogoUrl", url)}
             type="bg"
           />
