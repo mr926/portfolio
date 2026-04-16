@@ -22,6 +22,7 @@ interface SiteSettings {
   logoUrl: string;
   logoMode: string;
   faviconUrl: string;
+  landingLogoUrl: string;
   // Landing hide duration
   landingHideMin: number;
 }
@@ -145,6 +146,7 @@ export default function AdminSettingsPage() {
         <fieldset className="space-y-6">
           <legend className={LEGEND_CLS}>Logo &amp; Favicon</legend>
 
+          {/* 导航栏显示模式 */}
           <div>
             <label className={LABEL_CLS}>导航栏显示模式</label>
             <div className="flex flex-col gap-3 mt-1">
@@ -170,36 +172,34 @@ export default function AdminSettingsPage() {
             </div>
           </div>
 
+          {/* 导航栏 Logo */}
           {(settings.logoMode === "logo" || settings.logoMode === "both") && (
-            <div>
-              <ImageUpload
-                label="Logo 图片（建议透明背景 PNG，高度 40px 左右）"
-                value={settings.logoUrl}
-                onChange={(url) => update("logoUrl", url)}
-                type="bg"
-              />
-              {settings.logoUrl && (
-                <div className="mt-3 p-4 bg-[#f3f3f4] inline-flex items-center">
-                  <img src={settings.logoUrl} alt="Logo preview" className="h-8 object-contain" />
-                </div>
-              )}
-            </div>
-          )}
-
-          <div>
             <ImageUpload
-              label="Favicon（建议 32×32 或 64×64 PNG / ICO）"
-              value={settings.faviconUrl}
-              onChange={(url) => update("faviconUrl", url)}
+              label="导航栏 Logo（建议透明背景 PNG，高度 40px 左右）"
+              value={settings.logoUrl}
+              onChange={(url) => update("logoUrl", url)}
               type="bg"
             />
-            {settings.faviconUrl && (
-              <div className="mt-3 flex items-center gap-3">
-                <img src={settings.faviconUrl} alt="Favicon preview" className="w-8 h-8 object-contain border border-[#e8e8e8]" />
-                <span className="text-[9px] text-[#c6c6c6] tracking-widest">保存后刷新页面生效</span>
-              </div>
-            )}
-          </div>
+          )}
+
+          {/* Landing 专用 Logo */}
+          <ImageUpload
+            label="Landing 页面 Logo（留空则使用导航栏 Logo）"
+            value={settings.landingLogoUrl}
+            onChange={(url) => update("landingLogoUrl", url)}
+            type="bg"
+          />
+
+          {/* Favicon */}
+          <ImageUpload
+            label="Favicon（建议 32×32 或 64×64 PNG / ICO）"
+            value={settings.faviconUrl}
+            onChange={(url) => update("faviconUrl", url)}
+            type="bg"
+          />
+          {settings.faviconUrl && (
+            <p className="text-[9px] text-[#c6c6c6] -mt-4">保存后刷新页面生效</p>
+          )}
         </fieldset>
 
         {/* ── Social ── */}

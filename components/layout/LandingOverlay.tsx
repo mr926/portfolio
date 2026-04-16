@@ -10,7 +10,8 @@ interface LandingOverlayProps {
   stayMs: number;
   animMs: number;
   hideMin: number;
-  logoUrl?: string;
+  logoUrl?: string;        // 导航栏 logo（fallback）
+  landingLogoUrl?: string; // landing 专用 logo（优先）
   logoMode?: "name" | "logo" | "both";
   onComplete: () => void;
 }
@@ -26,6 +27,7 @@ export default function LandingOverlay({
   animMs,
   hideMin,
   logoUrl,
+  landingLogoUrl,
   logoMode = "name",
   onComplete,
 }: LandingOverlayProps) {
@@ -101,7 +103,9 @@ export default function LandingOverlay({
   }, [stayMs, animMs, hideMin, onComplete]);
 
   const defaultBg = "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #0a0a0a 100%)";
-  const showImage = (logoMode === "logo" || logoMode === "both") && logoUrl;
+  // landing 专用 logo 优先，没有则 fallback 到导航栏 logo
+  const effectiveLogoUrl = landingLogoUrl || logoUrl;
+  const showImage = (logoMode === "logo" || logoMode === "both") && effectiveLogoUrl;
   const showName  = logoMode === "name" || logoMode === "both";
 
   return (
@@ -142,7 +146,7 @@ export default function LandingOverlay({
         >
           {showImage && (
             <img
-              src={logoUrl}
+              src={effectiveLogoUrl!}
               alt={siteName}
               className="h-24 w-auto object-contain"
               draggable={false}

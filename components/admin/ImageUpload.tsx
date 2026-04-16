@@ -69,55 +69,70 @@ export default function ImageUpload({
         {label}
       </label>
 
-      {/* Current image preview */}
-      {value && (
-        <div className="mb-3 relative group">
-          <img
-            src={value}
-            alt=""
-            className="h-32 w-full object-cover bg-[#e8e8e8]"
-          />
-          <button
-            type="button"
-            onClick={() => onChange("")}
-            className="absolute top-2 right-2 bg-black text-white w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-          >
-            ×
-          </button>
-        </div>
-      )}
-
-      {/* URL input — type="text" to allow relative paths like /uploads/... */}
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="https://... 或 /uploads/... 或直接上传"
-        className="w-full bg-transparent border-b border-[#c6c6c6] pb-2 text-sm text-black focus:outline-none focus:border-black transition-colors mb-3"
-      />
-
-      {/* Upload zone */}
+      {/* Upload zone — shows preview when image exists */}
       <div
         onDrop={handleDrop}
         onDragOver={(e) => e.preventDefault()}
         onClick={() => inputRef.current?.click()}
-        className="border border-dashed border-[#c6c6c6] p-6 flex flex-col items-center gap-2 cursor-pointer hover:border-black transition-colors"
+        className="relative border border-dashed border-[#c6c6c6] cursor-pointer hover:border-black transition-colors overflow-hidden group"
+        style={{ minHeight: "80px" }}
       >
-        {uploading ? (
-          <p className="text-[10px] tracking-widest uppercase text-[#5e5e5e] animate-pulse">
-            Uploading...
-          </p>
-        ) : (
+        {value ? (
+          /* Image preview fills the zone */
           <>
-            <span className="material-symbols-outlined text-2xl text-[#c6c6c6]">
-              cloud_upload
-            </span>
-            <p className="text-[10px] tracking-widest uppercase text-[#5e5e5e]">
-              Click or drag to upload
-            </p>
+            <img
+              src={value}
+              alt=""
+              className="w-full object-cover"
+              style={{ maxHeight: "160px" }}
+            />
+            {/* Hover overlay */}
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-1">
+              <span className="material-symbols-outlined text-white text-2xl">
+                {uploading ? "hourglass_empty" : "cloud_upload"}
+              </span>
+              <p className="text-[10px] tracking-widest uppercase text-white">
+                {uploading ? "Uploading..." : "Replace image"}
+              </p>
+            </div>
+            {/* Clear button */}
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onChange(""); }}
+              className="absolute top-2 right-2 bg-black text-white w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity z-10"
+            >
+              ×
+            </button>
           </>
+        ) : (
+          /* Empty state */
+          <div className="flex flex-col items-center justify-center gap-2 p-6">
+            {uploading ? (
+              <p className="text-[10px] tracking-widest uppercase text-[#5e5e5e] animate-pulse">
+                Uploading...
+              </p>
+            ) : (
+              <>
+                <span className="material-symbols-outlined text-2xl text-[#c6c6c6]">
+                  cloud_upload
+                </span>
+                <p className="text-[10px] tracking-widest uppercase text-[#5e5e5e]">
+                  Click or drag to upload
+                </p>
+              </>
+            )}
+          </div>
         )}
       </div>
+
+      {/* URL input */}
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="https://... 或 /uploads/..."
+        className="w-full bg-transparent border-b border-[#c6c6c6] pb-2 text-sm text-black focus:outline-none focus:border-black transition-colors mt-2"
+      />
 
       {error && (
         <p className="text-[#ba1a1a] text-[10px] tracking-widest uppercase mt-2">

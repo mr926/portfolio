@@ -31,7 +31,7 @@ export async function PUT(req: NextRequest) {
     // CDN
     "cdnUrl",
     // Logo & Favicon
-    "logoUrl", "logoMode", "faviconUrl",
+    "logoUrl", "logoMode", "faviconUrl", "landingLogoUrl",
   ];
 
   const updateData: Record<string, unknown> = {};
