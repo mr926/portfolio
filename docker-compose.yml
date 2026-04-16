@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   portfolio:
     image: ghcr.io/${GITHUB_REPOSITORY:-mr926/portfolio}:latest
@@ -9,16 +7,25 @@ services:
       - "3000:3000"
     environment:
       - DATABASE_URL=file:/app/data/portfolio.db
-      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set}
       - NODE_ENV=production
     volumes:
       - portfolio_data:/app/data
       - portfolio_uploads:/app/public/uploads
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/public/settings"]
       interval: 30s
       timeout: 10s
       retries: 3
+      start_period: 20s
 
 volumes:
   portfolio_data:

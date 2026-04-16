@@ -24,32 +24,35 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Copy standalone output
+# Next.js standalone 已自带精简的运行时依赖（~49MB），无需拷完整 node_modules
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Copy Prisma schema + migrations + config
+# Prisma schema + migrations（migrate deploy 需要读取）
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 
-# Copy generated Prisma client
+# 生成好的 Prisma client（运行时查询用）
 COPY --from=builder /app/app/generated/prisma ./app/generated/prisma
 
-# Copy full node_modules so prisma CLI has all its dependencies
-COPY --from=builder /app/node_modules ./node_modules
+# 只安装 entrypoint 启动脚本需要的最小依赖：
+#   prisma  — migrate deploy
+#   bcryptjs — seed-admin.cjs 密码哈希
+# @libsql/client 已由 standalone 自带，无需重复安装
+RUN npm install --no-save prisma@7 bcryptjs@3 \
+    && npm cache clean --force
 
-# Pre-create writable directories (chmod 777 so any uid can write after volume mount)
+# 预建写入目录
 RUN mkdir -p /app/data /app/public/uploads && \
     chmod 777 /app/data /app/public/uploads
 
-# Copy entrypoint and seed scripts
+# 启动脚本
 COPY scripts/seed-admin.cjs /app/scripts/seed-admin.cjs
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 EXPOSE 3000
-
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 ENV DATABASE_URL="file:/app/data/portfolio.db"
