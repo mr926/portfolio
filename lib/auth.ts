@@ -2,12 +2,6 @@ import jwt from "jsonwebtoken";
 import { NextRequest } from "next/server";
 
 const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error(
-    "JWT_SECRET environment variable is not set. " +
-    "Please set a strong random secret (e.g. openssl rand -hex 32)."
-  );
-}
 
 export interface JwtPayload {
   userId: string;
@@ -16,13 +10,23 @@ export interface JwtPayload {
   exp?: number;
 }
 
+function getSecret(): string {
+  if (!JWT_SECRET) {
+    throw new Error(
+      "JWT_SECRET environment variable is not set. " +
+      "Please set a strong random secret (e.g. openssl rand -hex 32)."
+    );
+  }
+  return JWT_SECRET;
+}
+
 export function signToken(payload: Omit<JwtPayload, "iat" | "exp">): string {
-  return jwt.sign(payload, JWT_SECRET!, { expiresIn: "7d" });
+  return jwt.sign(payload, getSecret(), { expiresIn: "7d" });
 }
 
 export function verifyToken(token: string): JwtPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET!) as JwtPayload;
+    return jwt.verify(token, getSecret()) as JwtPayload;
   } catch {
     return null;
   }
